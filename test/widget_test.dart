@@ -5,6 +5,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:caffora_mobile_app/main.dart';
@@ -29,5 +30,34 @@ void main() {
     expect(find.text('Table 04'), findsOneWidget);
     expect(find.text('Artisan Flat White'), findsOneWidget);
     expect(find.text('View Cart  →'), findsOneWidget);
+  });
+
+  testWidgets('navigates to the Caffora cart screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+
+    await tester.tap(find.text('Menu').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.shopping_bag_outlined).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your Bag'), findsOneWidget);
+    expect(find.text('Artisan Flat White'), findsOneWidget);
+    expect(find.text('Place Order • \$14.99'), findsOneWidget);
+  });
+
+  testWidgets('view cart summary opens the Caffora cart screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+
+    await tester.tap(find.text('Menu').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View Cart  →'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your Bag'), findsOneWidget);
+    expect(find.text('Estimated Tax'), findsOneWidget);
   });
 }
