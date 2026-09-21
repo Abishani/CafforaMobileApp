@@ -31,6 +31,8 @@ class _MenuPageState extends State<MenuPage> {
       Navigator.of(context).pushReplacementNamed('/');
     } else if (index == 2) {
       Navigator.of(context).pushReplacementNamed('/cart');
+    } else if (index == 3) {
+      Navigator.of(context).pushReplacementNamed('/orders');
     }
   }
 

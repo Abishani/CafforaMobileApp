@@ -43,6 +43,10 @@ class _HomePageState extends State<HomePage> {
       Navigator.of(context).pushReplacementNamed('/cart');
       return;
     }
+    if (index == 3) {
+      Navigator.of(context).pushReplacementNamed('/orders');
+      return;
+    }
     setState(() => _selectedNavigationIndex = index);
   }
 

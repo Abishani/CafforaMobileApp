@@ -14,4 +14,5 @@ abstract final class AppAssets {
   static const cartArtisanFlatWhite =
       'assets/images/cart_artisan_flat_white.png';
   static const cartWildBerryToast = 'assets/images/cart_wild_berry_toast.png';
+  static const orderPreview = 'assets/images/order_preview.png';
 }

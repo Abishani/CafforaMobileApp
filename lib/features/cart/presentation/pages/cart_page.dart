@@ -36,6 +36,8 @@ class _CartPageState extends State<CartPage> {
       Navigator.of(context).pushReplacementNamed('/');
     } else if (index == 1) {
       Navigator.of(context).pushReplacementNamed('/menu');
+    } else if (index == 3) {
+      Navigator.of(context).pushReplacementNamed('/orders');
     }
   }
 
@@ -89,12 +91,8 @@ class _CartPageState extends State<CartPage> {
               SizedBox(
                 width: double.infinity,
                 child: PlaceOrderButton(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Order placed for Table 04'),
-                      duration: Duration(milliseconds: 900),
-                    ),
-                  ),
+                  onPressed: () =>
+                      Navigator.of(context).pushReplacementNamed('/orders'),
                 ),
               ),
             ],

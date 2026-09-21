@@ -4,6 +4,7 @@ import 'core/theme/app_theme.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/menu/presentation/pages/menu_page.dart';
 import 'features/cart/presentation/pages/cart_page.dart';
+import 'features/orders/presentation/pages/orders_page.dart';
 
 void main() {
   runApp(const CafforaApp());
@@ -22,6 +23,7 @@ class CafforaApp extends StatelessWidget {
         '/': (_) => const HomePage(),
         '/menu': (_) => const MenuPage(),
         '/cart': (_) => const CartPage(),
+        '/orders': (_) => const OrdersPage(),
       },
       initialRoute: '/',
     );
