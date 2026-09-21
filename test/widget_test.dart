@@ -60,4 +60,33 @@ void main() {
     expect(find.text('Your Bag'), findsOneWidget);
     expect(find.text('Estimated Tax'), findsOneWidget);
   });
+
+  testWidgets('place order opens the Caffora orders screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+
+    await tester.tap(find.text('Menu').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.shopping_bag_outlined).last);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Place Order • \$14.99'));
+    await tester.tap(find.text('Place Order • \$14.99'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('My Orders'), findsOneWidget);
+    expect(find.text('Ready in ~4 mins'), findsWidgets);
+  });
+
+  testWidgets('orders tab opens the Caffora orders screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+
+    await tester.tap(find.text('Orders'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('My Orders'), findsOneWidget);
+    expect(find.text('Offline mode • Cached receipt ready'), findsOneWidget);
+  });
 }
