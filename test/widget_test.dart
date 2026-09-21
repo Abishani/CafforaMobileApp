@@ -133,4 +133,20 @@ void main() {
     expect(find.text('System Default'), findsOneWidget);
     expect(find.text('Warm cream & linen aesthetic'), findsOneWidget);
   });
+
+  testWidgets('login route renders the Caffora sign-in screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+    await tester.tap(find.text('Account'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Sign out'));
+    await tester.tap(find.text('Sign out'));
+    await tester.pumpAndSettle();
+
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Email address'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
+  });
 }
