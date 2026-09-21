@@ -29,6 +29,8 @@ class _MenuPageState extends State<MenuPage> {
   void _selectNavigation(int index) {
     if (index == 0) {
       Navigator.of(context).pushReplacementNamed('/');
+    } else if (index == 2) {
+      Navigator.of(context).pushReplacementNamed('/cart');
     }
   }
 
@@ -88,7 +90,8 @@ class _MenuPageState extends State<MenuPage> {
           CartSummaryBar(
             itemCount: _cartCount,
             total: '\$11.45',
-            onPressed: () {},
+            onPressed: () =>
+                Navigator.of(context).pushReplacementNamed('/cart'),
           ),
           const SizedBox(height: 8),
           HomeBottomNavigation(

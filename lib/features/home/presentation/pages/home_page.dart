@@ -39,6 +39,10 @@ class _HomePageState extends State<HomePage> {
       Navigator.of(context).pushReplacementNamed('/menu');
       return;
     }
+    if (index == 2) {
+      Navigator.of(context).pushReplacementNamed('/cart');
+      return;
+    }
     setState(() => _selectedNavigationIndex = index);
   }
 

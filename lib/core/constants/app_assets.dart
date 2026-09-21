@@ -11,4 +11,7 @@ abstract final class AppAssets {
   static const wildBerryBriocheToast =
       'assets/images/wild_berry_brioche_toast.png';
   static const truffledEggBagel = 'assets/images/truffled_egg_bagel.png';
+  static const cartArtisanFlatWhite =
+      'assets/images/cart_artisan_flat_white.png';
+  static const cartWildBerryToast = 'assets/images/cart_wild_berry_toast.png';
 }

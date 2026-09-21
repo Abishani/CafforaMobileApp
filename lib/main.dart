@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/menu/presentation/pages/menu_page.dart';
+import 'features/cart/presentation/pages/cart_page.dart';
 
 void main() {
   runApp(const CafforaApp());
@@ -17,7 +18,11 @@ class CafforaApp extends StatelessWidget {
       title: 'Caffora',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      routes: {'/': (_) => const HomePage(), '/menu': (_) => const MenuPage()},
+      routes: {
+        '/': (_) => const HomePage(),
+        '/menu': (_) => const MenuPage(),
+        '/cart': (_) => const CartPage(),
+      },
       initialRoute: '/',
     );
   }
