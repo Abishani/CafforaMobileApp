@@ -34,6 +34,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _selectNavigation(int index) {
+    if (index == 1) {
+      Navigator.of(context).pushReplacementNamed('/menu');
+      return;
+    }
+    setState(() => _selectedNavigationIndex = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +95,7 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: HomeBottomNavigation(
         selectedIndex: _selectedNavigationIndex,
-        onSelected: (index) => setState(() => _selectedNavigationIndex = index),
+        onSelected: _selectNavigation,
         cartCount: _cartCount,
       ),
     );

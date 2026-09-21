@@ -5,7 +5,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../data/home_data.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  const HomeHeader({super.key, this.actionLabel = 'Account'});
+
+  final String actionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +31,8 @@ class HomeHeader extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
-                const Text(
-                  'Account',
+                Text(
+                  actionLabel,
                   style: TextStyle(
                     color: AppColors.body,
                     fontSize: 13,
