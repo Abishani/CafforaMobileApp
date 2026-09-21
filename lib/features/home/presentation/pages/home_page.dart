@@ -47,6 +47,10 @@ class _HomePageState extends State<HomePage> {
       Navigator.of(context).pushReplacementNamed('/orders');
       return;
     }
+    if (index == 4) {
+      Navigator.of(context).pushReplacementNamed('/profile');
+      return;
+    }
     setState(() => _selectedNavigationIndex = index);
   }
 
@@ -56,7 +60,7 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
-        child: HomeHeader(),
+        child: HomeHeader(showNotifications: true),
       ),
       body: SafeArea(
         bottom: false,

@@ -33,6 +33,8 @@ class _MenuPageState extends State<MenuPage> {
       Navigator.of(context).pushReplacementNamed('/cart');
     } else if (index == 3) {
       Navigator.of(context).pushReplacementNamed('/orders');
+    } else if (index == 4) {
+      Navigator.of(context).pushReplacementNamed('/profile');
     }
   }
 
@@ -42,7 +44,7 @@ class _MenuPageState extends State<MenuPage> {
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
-        child: HomeHeader(actionLabel: 'Menu'),
+        child: HomeHeader(showActionLabel: false),
       ),
       body: SafeArea(
         bottom: false,

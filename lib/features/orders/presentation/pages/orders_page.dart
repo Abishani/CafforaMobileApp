@@ -23,6 +23,8 @@ class _OrdersPageState extends State<OrdersPage> {
         Navigator.of(context).pushReplacementNamed('/menu');
       case 2:
         Navigator.of(context).pushReplacementNamed('/cart');
+      case 4:
+        Navigator.of(context).pushReplacementNamed('/profile');
     }
   }
 
@@ -32,7 +34,7 @@ class _OrdersPageState extends State<OrdersPage> {
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
-        child: HomeHeader(actionLabel: 'Orders'),
+        child: HomeHeader(showActionLabel: false),
       ),
       body: SafeArea(
         bottom: false,

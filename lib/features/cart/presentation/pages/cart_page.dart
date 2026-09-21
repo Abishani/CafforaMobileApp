@@ -38,6 +38,8 @@ class _CartPageState extends State<CartPage> {
       Navigator.of(context).pushReplacementNamed('/menu');
     } else if (index == 3) {
       Navigator.of(context).pushReplacementNamed('/orders');
+    } else if (index == 4) {
+      Navigator.of(context).pushReplacementNamed('/profile');
     }
   }
 
@@ -51,7 +53,7 @@ class _CartPageState extends State<CartPage> {
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
-        child: HomeHeader(actionLabel: 'Cart'),
+        child: HomeHeader(showActionLabel: false),
       ),
       body: SafeArea(
         bottom: false,

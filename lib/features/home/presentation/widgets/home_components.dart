@@ -5,9 +5,16 @@ import '../../../../core/theme/app_theme.dart';
 import '../../data/home_data.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key, this.actionLabel = 'Account'});
+  const HomeHeader({
+    super.key,
+    this.actionLabel = 'Account',
+    this.showNotifications = false,
+    this.showActionLabel = true,
+  });
 
   final String actionLabel;
+  final bool showNotifications;
+  final bool showActionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +38,27 @@ class HomeHeader extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
-                Text(
-                  actionLabel,
-                  style: TextStyle(
-                    color: AppColors.body,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                if (showNotifications)
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(
+                      child: Icon(
+                        Icons.notifications_none_outlined,
+                        size: 20,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  )
+                else if (showActionLabel)
+                  Text(
+                    actionLabel,
+                    style: const TextStyle(
+                      color: AppColors.body,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
                 const SizedBox(width: 16),
                 Container(
                   width: 32,
