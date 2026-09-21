@@ -17,4 +17,17 @@ void main() {
     expect(find.text('Popular Drinks'), findsOneWidget);
     expect(find.text('Bakery & Treats'), findsOneWidget);
   });
+
+  testWidgets('navigates to the Caffora menu screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+
+    await tester.tap(find.text('Menu').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Table 04'), findsOneWidget);
+    expect(find.text('Artisan Flat White'), findsOneWidget);
+    expect(find.text('View Cart  →'), findsOneWidget);
+  });
 }
