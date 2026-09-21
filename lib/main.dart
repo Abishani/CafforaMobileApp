@@ -6,6 +6,7 @@ import 'features/menu/presentation/pages/menu_page.dart';
 import 'features/cart/presentation/pages/cart_page.dart';
 import 'features/orders/presentation/pages/orders_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/appearance/presentation/pages/appearance_page.dart';
 
 void main() {
   runApp(const CafforaApp());
@@ -26,6 +27,7 @@ class CafforaApp extends StatelessWidget {
         '/cart': (_) => const CartPage(),
         '/orders': (_) => const OrdersPage(),
         '/profile': (_) => const ProfilePage(),
+        '/appearance': (_) => const AppearancePage(),
       },
       initialRoute: '/',
     );

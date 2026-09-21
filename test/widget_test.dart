@@ -117,4 +117,20 @@ void main() {
     expect(find.text('Support'), findsOneWidget);
     expect(find.text('Sign out'), findsOneWidget);
   });
+
+  testWidgets('appearance option opens the appearance screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+    await tester.tap(find.text('Account'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Appearance'));
+    await tester.tap(find.text('Appearance'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('THEME PREFERENCE'), findsOneWidget);
+    expect(find.text('System Default'), findsOneWidget);
+    expect(find.text('Warm cream & linen aesthetic'), findsOneWidget);
+  });
 }

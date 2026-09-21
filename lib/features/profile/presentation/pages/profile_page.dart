@@ -112,10 +112,13 @@ class ProfilePage extends StatelessWidget {
                     subtitle: 'Manage your saved cards',
                   ),
                   const ProfileDivider(),
-                  const ProfileActionTile(
+                  ProfileActionTile(
                     icon: Icons.palette_outlined,
                     title: 'Appearance',
                     subtitle: 'Customize your app experience',
+                    onTap: () =>
+                        Navigator.of(context)
+                            .pushReplacementNamed('/appearance'),
                   ),
                 ],
               ),
