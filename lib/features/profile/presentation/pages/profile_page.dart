@@ -150,12 +150,8 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.logout,
                     title: 'Sign out',
                     subtitle: 'Sign out of this account',
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('You are still signed in'),
-                        duration: Duration(milliseconds: 900),
-                      ),
-                    ),
+                    onTap: () =>
+                        Navigator.of(context).pushReplacementNamed('/login'),
                   ),
                 ],
               ),
