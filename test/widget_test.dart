@@ -89,4 +89,32 @@ void main() {
     expect(find.text('My Orders'), findsOneWidget);
     expect(find.text('Offline mode • Cached receipt ready'), findsOneWidget);
   });
+
+  testWidgets('account tab opens the Caffora profile screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+
+    await tester.tap(find.text('Account'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Alex Morgan'), findsOneWidget);
+    expect(find.text('Order history'), findsOneWidget);
+    expect(find.text('Appearance'), findsOneWidget);
+  });
+
+  testWidgets('profile options remain reachable when scrolled', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+    await tester.tap(find.text('Account'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(Scrollable), const Offset(0, -900));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Support'), findsOneWidget);
+    expect(find.text('Sign out'), findsOneWidget);
+  });
 }
