@@ -1,0 +1,13 @@
+-- Example negative checks. Run with Supabase's SQL editor or pgTAP after
+-- authenticating as the corresponding role; the statements must fail.
+-- Registered user must not write MenuItems:
+-- insert into public."MenuItems" (name) values ('Unauthorized item');
+-- update public."MenuItems" set name = 'Unauthorized update' where id = '<menu-id>';
+-- delete from public."MenuItems" where id = '<menu-id>';
+-- Registered user must not update Orders.status:
+-- update public."Orders" set status = 'completed' where id = '<own-order-id>';
+-- Anonymous/guest must not insert Orders:
+-- insert into public."Orders" (user_id) values (auth.uid());
+
+-- Expected result for each statement above: permission denied by row-level
+-- security policy (or zero rows affected where the policy filters the row).
