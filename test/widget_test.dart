@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:caffora_mobile_app/main.dart';
+import 'package:caffora_mobile_app/core/auth/auth_controller.dart';
 
 void main() {
   testWidgets('renders the Caffora home screen', (WidgetTester tester) async {
@@ -144,9 +145,90 @@ void main() {
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byIcon(Icons.login_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Email address'), findsOneWidget);
     expect(find.text('Sign in'), findsOneWidget);
+  });
+
+  testWidgets('sign out returns to guest home screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const CafforaApp());
+    await tester.tap(find.text('Account'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Sign out'));
+    await tester.tap(find.text('Sign out'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Good morning, Alex'), findsOneWidget);
+    expect(find.byIcon(Icons.login_outlined), findsOneWidget);
+  });
+
+  testWidgets('guest navigation and cart actions require login', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(CafforaApp(authController: AuthController.guest()));
+
+    expect(find.text('Cart'), findsNothing);
+    expect(find.text('Orders'), findsNothing);
+    expect(find.text('Account'), findsNothing);
+    expect(find.byIcon(Icons.login_outlined), findsOneWidget);
+
+    final addButton = find.byIcon(Icons.add).first;
+    await tester.ensureVisible(addButton);
+    await tester.tap(addButton);
+    await tester.pumpAndSettle();
+    expect(find.text('Login to place an order.'), findsOneWidget);
+  });
+
+  testWidgets('guest add-to-cart prompts for login', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(CafforaApp(authController: AuthController.guest()));
+    final addButton = find.byIcon(Icons.add).first;
+    await tester.ensureVisible(addButton);
+    await tester.tap(addButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Login to place an order.'), findsOneWidget);
+  });
+
+  testWidgets('john temporary email opens registered user profile', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.guest();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/login');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'john@gmail.com');
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Your Caffora'), findsOneWidget);
+    expect(find.text('Order history'), findsOneWidget);
+  });
+
+  testWidgets('abi temporary email opens admin tools', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.guest();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/login');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'abi@gmail.com');
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Revenue overview'), findsOneWidget);
+    tester
+        .state<NavigatorState>(find.byType(Navigator))
+        .pushReplacementNamed('/profile');
+    await tester.pumpAndSettle();
+    expect(find.text('Admin tools'), findsOneWidget);
+    expect(find.text('Manage menu'), findsOneWidget);
+    expect(find.text('Manage orders'), findsOneWidget);
   });
 }

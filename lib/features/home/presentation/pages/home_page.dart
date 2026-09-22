@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/auth/auth_controller.dart';
+import '../../../../core/auth/auth_scope.dart';
 import '../../data/home_data.dart';
 import '../widgets/home_components.dart';
 
@@ -35,6 +37,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _selectNavigation(int index) {
+    final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    if (role == UserRole.guest) {
+      if (index == 1) {
+        Navigator.of(context).pushReplacementNamed('/menu');
+      }
+      return;
+    }
+    if (role == UserRole.admin) {
+      switch (index) {
+        case 1:
+          Navigator.of(context).pushReplacementNamed('/menu');
+        case 2:
+          Navigator.of(context).pushReplacementNamed('/orders');
+        case 3:
+          Navigator.of(context).pushReplacementNamed('/profile');
+      }
+      return;
+    }
     if (index == 1) {
       Navigator.of(context).pushReplacementNamed('/menu');
       return;

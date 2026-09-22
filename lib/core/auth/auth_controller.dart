@@ -5,6 +5,7 @@ import '../../features/admin/presentation/pages/admin_page.dart';
 import '../../features/appearance/presentation/pages/appearance_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/menu/presentation/pages/menu_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/orders/presentation/pages/order_detail_page.dart';
@@ -16,6 +17,13 @@ class AuthController extends ChangeNotifier {
   AuthController._(this._client);
 
   factory AuthController.guest() => AuthController._(null);
+
+  factory AuthController.registered() {
+    final controller = AuthController._(null);
+    controller._role = UserRole.registered;
+    controller._displayName = 'Alex';
+    return controller;
+  }
 
   final SupabaseClient? _client;
   UserRole _role = UserRole.guest;
@@ -124,22 +132,33 @@ class AuthController extends ChangeNotifier {
     switch (settings.name) {
       case '/':
         page = const HomePage();
+        break;
+      case '/login':
+        page = const LoginPage();
+        break;
       case '/menu':
         page = const MenuPage();
+        break;
       case '/cart':
         page = const CartPage();
+        break;
       case '/orders':
         page = const OrdersPage();
+        break;
       case '/order-detail':
         final orderId = settings.arguments as String?;
         if (orderId == null) return null;
         page = OrderDetailPage(orderId: orderId);
+        break;
       case '/profile':
         page = const ProfilePage();
+        break;
       case '/appearance':
         page = const AppearancePage();
+        break;
       case '/admin':
         page = const AdminPage();
+        break;
       default:
         return null;
     }
@@ -151,8 +170,12 @@ class AuthController extends ChangeNotifier {
       '/admin',
     };
     if (restricted.contains(settings.name)) {
-      if (isGuest) page = const HomePage();
-      if (settings.name == '/admin' && !isAdmin) page = const HomePage();
+      if (isGuest) {
+        page = const HomePage();
+      }
+      if (settings.name == '/admin' && !isAdmin) {
+        page = const HomePage();
+      }
       if (settings.name != '/admin' &&
           isAdmin &&
           !{'/menu', '/orders', '/profile'}.contains(settings.name)) {

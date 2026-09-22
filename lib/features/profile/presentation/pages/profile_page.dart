@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/auth/auth_scope.dart';
 import '../../../home/presentation/widgets/home_components.dart';
 import '../widgets/profile_components.dart';
 
@@ -20,8 +21,16 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    await AuthScope.of(context).signOut();
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed('/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isAdmin = AuthScope.of(context).isAdmin;
     return Scaffold(
       extendBody: true,
       appBar: const PreferredSize(
@@ -52,8 +61,8 @@ class ProfilePage extends StatelessWidget {
               const SizedBox(height: 16),
               const ProfileIdentityCard(),
               const SizedBox(height: 24),
-              const Text(
-                'Your Caffora',
+              Text(
+                isAdmin ? 'Admin tools' : 'Your Caffora',
                 style: TextStyle(
                   fontSize: 18,
                   height: 24 / 18,
@@ -63,29 +72,55 @@ class ProfilePage extends StatelessWidget {
               const SizedBox(height: 12),
               ProfileSection(
                 children: [
-                  const ProfileActionTile(
-                    icon: Icons.person_outline,
-                    title: 'Personal information',
-                    subtitle: 'Update your name and contact details',
-                  ),
-                  const ProfileDivider(),
-                  const ProfileActionTile(
-                    icon: Icons.receipt_long_outlined,
-                    title: 'Order history',
-                    subtitle: 'View your past orders',
-                  ),
-                  const ProfileDivider(),
-                  const ProfileActionTile(
-                    icon: Icons.location_on_outlined,
-                    title: 'Saved places',
-                    subtitle: 'Manage your favorite locations',
-                  ),
-                  const ProfileDivider(),
-                  const ProfileActionTile(
-                    icon: Icons.favorite_border,
-                    title: 'Favorites',
-                    subtitle: 'Your saved drinks and treats',
-                  ),
+                  if (isAdmin) ...[
+                    ProfileActionTile(
+                      icon: Icons.dashboard_outlined,
+                      title: 'Admin dashboard',
+                      subtitle: 'View café performance and activity',
+                      onTap: () =>
+                          Navigator.of(context).pushReplacementNamed('/admin'),
+                    ),
+                    const ProfileDivider(),
+                    ProfileActionTile(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Manage menu',
+                      subtitle: 'Add or update food and drinks',
+                      onTap: () =>
+                          Navigator.of(context).pushReplacementNamed('/menu'),
+                    ),
+                    const ProfileDivider(),
+                    ProfileActionTile(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'Manage orders',
+                      subtitle: 'Review and update order status',
+                      onTap: () =>
+                          Navigator.of(context).pushReplacementNamed('/orders'),
+                    ),
+                  ] else ...[
+                    const ProfileActionTile(
+                      icon: Icons.person_outline,
+                      title: 'Personal information',
+                      subtitle: 'Update your name and contact details',
+                    ),
+                    const ProfileDivider(),
+                    const ProfileActionTile(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'Order history',
+                      subtitle: 'View your past orders',
+                    ),
+                    const ProfileDivider(),
+                    const ProfileActionTile(
+                      icon: Icons.location_on_outlined,
+                      title: 'Saved places',
+                      subtitle: 'Manage your favorite locations',
+                    ),
+                    const ProfileDivider(),
+                    const ProfileActionTile(
+                      icon: Icons.favorite_border,
+                      title: 'Favorites',
+                      subtitle: 'Your saved drinks and treats',
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 24),
@@ -150,8 +185,7 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.logout,
                     title: 'Sign out',
                     subtitle: 'Sign out of this account',
-                    onTap: () =>
-                        Navigator.of(context).pushReplacementNamed('/login'),
+                    onTap: () => _signOut(context),
                   ),
                 ],
               ),

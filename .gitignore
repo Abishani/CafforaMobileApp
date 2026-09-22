@@ -11,6 +11,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+android/.gradle/
+android/app/build/
 
 # IntelliJ related
 *.iml
@@ -43,6 +45,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/build/
+/android/build/
 
 # Widget Preview related
 .widget_preview/

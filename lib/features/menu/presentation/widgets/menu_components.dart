@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/auth/auth_scope.dart';
 import '../../data/menu_data.dart';
 
 class MenuTitleRow extends StatelessWidget {
@@ -219,7 +220,18 @@ class MenuProductCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconButton(
-            onPressed: onAdd,
+            onPressed: () {
+              if (AuthScope.maybeOf(context)?.isGuest ?? false) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Login to place an order.'),
+                    duration: Duration(milliseconds: 1200),
+                  ),
+                );
+                return;
+              }
+              onAdd();
+            },
             icon: const Icon(Icons.add, size: 22),
             color: AppColors.ink,
             style: IconButton.styleFrom(

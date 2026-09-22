@@ -8,6 +8,11 @@ create or replace function public.current_user_role()
 returns text language sql stable security definer set search_path = public
 as $$ select role from public."Users" where id = auth.uid() $$;
 
+create policy "users read own profile" on public."Users"
+for select to authenticated using (id = auth.uid());
+create policy "admins read user profiles" on public."Users"
+for select to authenticated using (public.current_user_role() = 'admin');
+
 create policy "menu items are public read only" on public."MenuItems"
 for select using (true);
 create policy "admins manage menu items" on public."MenuItems"

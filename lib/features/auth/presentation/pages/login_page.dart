@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/auth/auth_scope.dart';
 import '../widgets/login_components.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,14 +22,25 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     FocusScope.of(context).unfocus();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Welcome back to Caffora'),
-        duration: Duration(milliseconds: 900),
-      ),
+    final auth = AuthScope.of(context);
+    final error = await auth.signIn(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
     );
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          duration: const Duration(milliseconds: 1200),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context)
+        .pushReplacementNamed(auth.isAdmin ? '/admin' : '/profile');
   }
 
   @override

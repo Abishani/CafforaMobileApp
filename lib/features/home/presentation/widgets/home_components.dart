@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/auth/auth_controller.dart';
+import '../../../../core/auth/auth_scope.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/home_data.dart';
 
@@ -18,6 +20,7 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGuest = AuthScope.maybeOf(context)?.isGuest ?? false;
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xD9FFF8F6),
@@ -38,7 +41,18 @@ class HomeHeader extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
-                if (showNotifications)
+                if (isGuest)
+                  IconButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushReplacementNamed('/login'),
+                    icon: const Icon(
+                      Icons.login_outlined,
+                      size: 20,
+                      color: AppColors.accentDark,
+                    ),
+                    tooltip: 'Login to place an order',
+                  )
+                else if (showNotifications)
                   SizedBox(
                     width: 40,
                     height: 40,
@@ -59,18 +73,20 @@ class HomeHeader extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                const SizedBox(width: 16),
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: Color(0x33C86240), spreadRadius: 1),
-                    ],
+                if (!isGuest) ...[
+                  const SizedBox(width: 16),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Color(0x33C86240), spreadRadius: 1),
+                      ],
+                    ),
+                    child: ClipOval(child: Image.asset(AppAssets.profile)),
                   ),
-                  child: ClipOval(child: Image.asset(AppAssets.profile)),
-                ),
+                ],
               ],
             ),
           ),
@@ -372,7 +388,18 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => onAdd(product),
+                      onPressed: () {
+                        if (AuthScope.maybeOf(context)?.isGuest ?? false) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Login to place an order.'),
+                              duration: Duration(milliseconds: 1200),
+                            ),
+                          );
+                          return;
+                        }
+                        onAdd(product);
+                      },
                       icon: const Icon(Icons.add, size: 18),
                       color: Colors.white,
                       style: IconButton.styleFrom(
@@ -435,13 +462,26 @@ class HomeBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const items = [
-      (Icons.coffee_outlined, 'Home'),
-      (Icons.menu_book_outlined, 'Menu'),
-      (Icons.shopping_bag_outlined, 'Cart'),
-      (Icons.receipt_long_outlined, 'Orders'),
-      (Icons.account_balance_wallet_outlined, 'Account'),
-    ];
+    final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    final items = switch (role) {
+      UserRole.guest => const [
+        (Icons.coffee_outlined, 'Home'),
+        (Icons.menu_book_outlined, 'Menu'),
+      ],
+      UserRole.admin => const [
+        (Icons.coffee_outlined, 'Home'),
+        (Icons.menu_book_outlined, 'Manage Menu'),
+        (Icons.receipt_long_outlined, 'Manage Orders'),
+        (Icons.account_balance_wallet_outlined, 'Profile'),
+      ],
+      UserRole.registered => const [
+        (Icons.coffee_outlined, 'Home'),
+        (Icons.menu_book_outlined, 'Menu'),
+        (Icons.shopping_bag_outlined, 'Cart'),
+        (Icons.receipt_long_outlined, 'Orders'),
+        (Icons.account_balance_wallet_outlined, 'Account'),
+      ],
+    };
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xE6FFF8F6),
@@ -477,7 +517,9 @@ class HomeBottomNavigation extends StatelessWidget {
                                   ? AppColors.accent
                                   : AppColors.body,
                             ),
-                            if (index == 2 && cartCount > 0)
+                            if (role == UserRole.registered &&
+                                index == 2 &&
+                                cartCount > 0)
                               Positioned(
                                 right: -9,
                                 top: -7,
