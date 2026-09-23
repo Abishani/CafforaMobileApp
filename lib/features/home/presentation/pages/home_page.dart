@@ -77,6 +77,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
+    final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    final isGuest = role == UserRole.guest;
 
     return Scaffold(
       backgroundColor: palette.background,
@@ -99,8 +101,10 @@ class _HomePageState extends State<HomePage> {
             children: [
               const HomeSearchBar(),
               const SizedBox(height: 24),
-              PickupBanner(onOrder: _showOrderMessage),
-              const SizedBox(height: AppSpacing.section),
+              if (!isGuest) ...[
+                PickupBanner(onOrder: _showOrderMessage),
+                const SizedBox(height: AppSpacing.section),
+              ],
               HomeSection(
                 title: 'Popular Drinks',
                 subtitle: 'Signature brews curated daily',

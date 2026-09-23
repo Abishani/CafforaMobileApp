@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/auth/auth_controller.dart';
 import '../../../../core/auth/auth_scope.dart';
 import '../../data/menu_data.dart';
 
@@ -10,6 +11,9 @@ class MenuTitleRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
+    final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    final isGuest = role == UserRole.guest;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -24,39 +28,40 @@ class MenuTitleRow extends StatelessWidget {
             letterSpacing: -.8,
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 7),
-          decoration: BoxDecoration(
-            color: palette.chipSurface,
-            borderRadius: BorderRadius.circular(99),
-            border: Border.fromBorderSide(
-              BorderSide(color: palette.border),
+        if (!isGuest)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 7),
+            decoration: BoxDecoration(
+              color: palette.chipSurface,
+              borderRadius: BorderRadius.circular(99),
+              border: Border.fromBorderSide(
+                BorderSide(color: palette.border),
+              ),
+              boxShadow: [
+                BoxShadow(color: palette.cardShadow, blurRadius: 2),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(color: palette.cardShadow, blurRadius: 2),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.table_restaurant,
-                size: 15,
-                color: palette.accentDark,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Table 04',
-                style: TextStyle(
-                  color: palette.ink,
-                  fontSize: 12,
-                  height: 16 / 12,
-                  fontWeight: FontWeight.w600,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.table_restaurant,
+                  size: 15,
+                  color: palette.accentDark,
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Text(
+                  'Table 04',
+                  style: TextStyle(
+                    color: palette.ink,
+                    fontSize: 12,
+                    height: 16 / 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

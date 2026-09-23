@@ -33,8 +33,6 @@ class _MenuPageState extends State<MenuPage> {
     if (role == UserRole.guest) {
       if (index == 0) {
         Navigator.of(context).pushReplacementNamed('/');
-      } else if (index == 2) {
-        Navigator.of(context).pushReplacementNamed('/appearance');
       }
       return;
     }
@@ -52,6 +50,9 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
+    final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    final isGuest = role == UserRole.guest;
+
     return Scaffold(
       backgroundColor: palette.background,
       extendBody: true,
@@ -104,13 +105,15 @@ class _MenuPageState extends State<MenuPage> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CartSummaryBar(
-            itemCount: _cartCount,
-            total: '\$11.45',
-            onPressed: () =>
-                Navigator.of(context).pushReplacementNamed('/cart'),
-          ),
-          const SizedBox(height: 8),
+          if (!isGuest) ...[
+            CartSummaryBar(
+              itemCount: _cartCount,
+              total: '\$11.45',
+              onPressed: () =>
+                  Navigator.of(context).pushReplacementNamed('/cart'),
+            ),
+            const SizedBox(height: 8),
+          ],
           HomeBottomNavigation(
             selectedIndex: 1,
             onSelected: _selectNavigation,
