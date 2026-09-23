@@ -513,7 +513,7 @@ class HomeBottomNavigation extends StatelessWidget {
       UserRole.guest => const [
         (Icons.coffee_outlined, 'Home'),
         (Icons.menu_book_outlined, 'Menu'),
-        // (Icons.palette_outlined, 'Appearance'),
+        (Icons.palette_outlined, 'Appearance'),
       ],
       UserRole.admin => const [
         (Icons.coffee_outlined, 'Home'),

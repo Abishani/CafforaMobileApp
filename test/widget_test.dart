@@ -158,6 +158,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.login_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Name'), findsOneWidget);
     expect(find.text('Email address'), findsOneWidget);
     expect(find.text('Sign in'), findsOneWidget);
   });
@@ -217,6 +218,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('John'), findsOneWidget);
+    expect(find.text('john@gmail.com'), findsOneWidget);
     expect(find.text('Your Caffora'), findsOneWidget);
     expect(find.text('Order history'), findsOneWidget);
   });
@@ -237,6 +240,8 @@ void main() {
         .state<NavigatorState>(find.byType(Navigator))
         .pushReplacementNamed('/profile');
     await tester.pumpAndSettle();
+    expect(find.text('Abi'), findsOneWidget);
+    expect(find.text('abi@gmail.com'), findsOneWidget);
     expect(find.text('Admin tools'), findsOneWidget);
     expect(find.text('Manage menu'), findsOneWidget);
     expect(find.text('Manage orders'), findsOneWidget);
@@ -287,5 +292,83 @@ void main() {
     await tester.tap(find.byTooltip('Back to Home'));
     await tester.pumpAndSettle();
     expect(find.text('Good morning, Alex'), findsOneWidget);
+  });
+
+  testWidgets('sign in asks for name and displays entered name and email on profile', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.guest();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/login');
+    await tester.pumpAndSettle();
+
+    // Enter Name
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Enter your name'),
+      'Sarah Connor',
+    );
+    // Enter Email
+    await tester.enterText(
+      find.widgetWithText(TextField, 'you@example.com'),
+      'sarah@gmail.com',
+    );
+    // Enter Password
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Enter your password'),
+      'secret123',
+    );
+
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Sarah Connor'), findsOneWidget);
+    expect(find.text('sarah@gmail.com'), findsOneWidget);
+    // Ensure Morgan is not appended and dummy email is not used
+    expect(find.text('Sarah Connor Morgan'), findsNothing);
+    expect(find.text('sarah.morgan@example.com'), findsNothing);
+  });
+
+  testWidgets('profile displays guest name and email for guest user', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.guest();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/profile');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Guest'), findsOneWidget);
+    expect(find.text('guest@caffora.com'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
+  });
+
+  testWidgets('profile displays registered default name and email', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.registered();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/profile');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Alex Morgan'), findsOneWidget);
+    expect(find.text('alex.morgan@example.com'), findsOneWidget);
+    expect(find.text('Sign out'), findsOneWidget);
+  });
+
+  testWidgets('profile displays admin name and email', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.admin();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/profile');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile'), findsWidgets);
+    expect(find.text('Abi'), findsOneWidget);
+    expect(find.text('abi@gmail.com'), findsOneWidget);
+    expect(find.text('Admin tools'), findsOneWidget);
+    expect(find.text('Sign out'), findsOneWidget);
   });
 }

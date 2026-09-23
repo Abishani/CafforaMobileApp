@@ -79,7 +79,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final displayName = AuthScope.maybeOf(context)?.displayName ?? 'Alex';
+    final auth = AuthScope.maybeOf(context);
+    final displayName = auth?.isGuest == true
+        ? 'Alex'
+        : (auth?.greetingName.isNotEmpty == true ? auth!.greetingName : 'Alex');
 
     return Scaffold(
       backgroundColor: palette.background,

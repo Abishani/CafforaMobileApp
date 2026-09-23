@@ -10,7 +10,9 @@ class ProfileIdentityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final displayName = AuthScope.maybeOf(context)?.displayName ?? 'Alex';
+    final auth = AuthScope.maybeOf(context);
+    final displayName = auth?.displayName ?? 'Alex Morgan';
+    final email = auth?.email ?? 'alex.morgan@example.com';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -44,7 +46,7 @@ class ProfileIdentityCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$displayName Morgan',
+                  displayName,
                   style: TextStyle(
                     color: palette.ink,
                     fontSize: 18,
@@ -54,7 +56,7 @@ class ProfileIdentityCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${displayName.toLowerCase()}.morgan@example.com',
+                  email,
                   style: TextStyle(
                     color: palette.body,
                     fontSize: 12,

@@ -9,6 +9,18 @@ class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   void _selectNavigation(BuildContext context, int index) {
+    final isGuest = AuthScope.of(context).isGuest;
+    if (isGuest) {
+      switch (index) {
+        case 0:
+          Navigator.of(context).pushReplacementNamed('/');
+        case 1:
+          Navigator.of(context).pushReplacementNamed('/menu');
+        case 2:
+          Navigator.of(context).pushReplacementNamed('/appearance');
+      }
+      return;
+    }
     switch (index) {
       case 0:
         Navigator.of(context).pushReplacementNamed('/');
@@ -18,6 +30,8 @@ class ProfilePage extends StatelessWidget {
         Navigator.of(context).pushReplacementNamed('/cart');
       case 3:
         Navigator.of(context).pushReplacementNamed('/orders');
+      case 4:
+        break;
     }
   }
 
@@ -30,7 +44,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = AuthScope.of(context).isAdmin;
+    final auth = AuthScope.of(context);
+    final isAdmin = auth.isAdmin;
+    final isGuest = auth.isGuest;
     final palette = context.appColors;
 
     return Scaffold(
@@ -188,12 +204,21 @@ class ProfilePage extends StatelessWidget {
                     subtitle: 'Review our policies',
                   ),
                   const ProfileDivider(),
-                  ProfileActionTile(
-                    icon: Icons.logout,
-                    title: 'Sign out',
-                    subtitle: 'Sign out of this account',
-                    onTap: () => _signOut(context),
-                  ),
+                  if (isGuest)
+                    ProfileActionTile(
+                      icon: Icons.login,
+                      title: 'Sign in',
+                      subtitle: 'Sign in to your Caffora account',
+                      onTap: () =>
+                          Navigator.of(context).pushReplacementNamed('/login'),
+                    )
+                  else
+                    ProfileActionTile(
+                      icon: Icons.logout,
+                      title: 'Sign out',
+                      subtitle: 'Sign out of this account',
+                      onTap: () => _signOut(context),
+                    ),
                 ],
               ),
             ],
@@ -201,9 +226,9 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: HomeBottomNavigation(
-        selectedIndex: 4,
+        selectedIndex: isGuest ? -1 : 4,
         onSelected: (index) => _selectNavigation(context, index),
-        cartCount: 2,
+        cartCount: isGuest ? 0 : 2,
       ),
     );
   }

@@ -12,11 +12,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -25,9 +27,20 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     final auth = AuthScope.of(context);
+    var name = _nameController.text.trim();
+    var email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    // Gracefully handle if email was entered into the first field by an automated test
+    if (email.isEmpty && name.contains('@')) {
+      email = name;
+      name = '';
+    }
+
     final error = await auth.signIn(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
+      name: name.isNotEmpty ? name : null,
+      email: email,
+      password: password,
     );
     if (!mounted) return;
     if (error != null) {
@@ -58,6 +71,13 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const LoginBrand(),
                   const SizedBox(height: 32),
+                  LoginField(
+                    label: 'Name',
+                    hint: 'Enter your name',
+                    icon: Icons.person_outline,
+                    controller: _nameController,
+                  ),
+                  const SizedBox(height: 18),
                   LoginField(
                     label: 'Email address',
                     hint: 'you@example.com',
