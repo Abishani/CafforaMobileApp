@@ -93,29 +93,43 @@ class HomeHeader extends StatelessWidget {
                     ),
                   )
                 else if (showActionLabel)
-                  Text(
-                    actionLabel,
-                    style: TextStyle(
-                      color: palette.body,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    onTap: () {
+                      if (ModalRoute.of(context)?.settings.name != '/profile') {
+                        Navigator.of(context).pushReplacementNamed('/profile');
+                      }
+                    },
+                    child: Text(
+                      actionLabel,
+                      style: TextStyle(
+                        color: palette.body,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 if (!isGuest) ...[
                   const SizedBox(width: 16),
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: palette.accentDark.withValues(alpha: .2),
-                          spreadRadius: 1,
-                        ),
-                      ],
+                  GestureDetector(
+                    onTap: () {
+                      if (ModalRoute.of(context)?.settings.name != '/profile') {
+                        Navigator.of(context).pushReplacementNamed('/profile');
+                      }
+                    },
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: palette.accentDark.withValues(alpha: .2),
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(child: Image.asset(AppAssets.profile)),
                     ),
-                    child: ClipOval(child: Image.asset(AppAssets.profile)),
                   ),
                 ],
               ],

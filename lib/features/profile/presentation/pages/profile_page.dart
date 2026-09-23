@@ -9,15 +9,27 @@ class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   void _selectNavigation(BuildContext context, int index) {
-    final isGuest = AuthScope.of(context).isGuest;
+    final auth = AuthScope.of(context);
+    final isGuest = auth.isGuest;
+    final isAdmin = auth.isAdmin;
     if (isGuest) {
+      if (index == 0) {
+        Navigator.of(context).pushReplacementNamed('/');
+      } else if (index == 1) {
+        Navigator.of(context).pushReplacementNamed('/menu');
+      }
+      return;
+    }
+    if (isAdmin) {
       switch (index) {
         case 0:
           Navigator.of(context).pushReplacementNamed('/');
         case 1:
           Navigator.of(context).pushReplacementNamed('/menu');
         case 2:
-          Navigator.of(context).pushReplacementNamed('/appearance');
+          Navigator.of(context).pushReplacementNamed('/orders');
+        case 3:
+          break;
       }
       return;
     }
@@ -226,7 +238,7 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: HomeBottomNavigation(
-        selectedIndex: isGuest ? -1 : 4,
+        selectedIndex: isGuest ? -1 : (isAdmin ? 3 : 4),
         onSelected: (index) => _selectNavigation(context, index),
         cartCount: isGuest ? 0 : 2,
       ),

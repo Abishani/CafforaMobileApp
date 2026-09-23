@@ -58,7 +58,7 @@ class _AdminPageState extends State<AdminPage> {
       backgroundColor: palette.background,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
-        child: HomeHeader(actionLabel: 'Admin', showActionLabel: true),
+        child: HomeHeader(actionLabel: 'Admin', showActionLabel: false),
       ),
       body: SafeArea(
         bottom: false,
