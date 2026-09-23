@@ -166,7 +166,6 @@ class AuthController extends ChangeNotifier {
       '/cart',
       '/orders',
       '/profile',
-      '/appearance',
       '/admin',
     };
     if (restricted.contains(settings.name)) {

@@ -41,6 +41,8 @@ class _HomePageState extends State<HomePage> {
     if (role == UserRole.guest) {
       if (index == 1) {
         Navigator.of(context).pushReplacementNamed('/menu');
+      } else if (index == 2) {
+        Navigator.of(context).pushReplacementNamed('/appearance');
       }
       return;
     }
@@ -76,7 +78,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+    final displayName = AuthScope.maybeOf(context)?.displayName ?? 'Alex';
+
     return Scaffold(
+      backgroundColor: palette.background,
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
@@ -94,9 +100,10 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Good morning, Alex',
+              Text(
+                'Good morning, $displayName',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 22,
                   height: 28 / 22,
                   fontWeight: FontWeight.w600,

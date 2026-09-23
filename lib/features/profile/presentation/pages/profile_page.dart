@@ -31,7 +31,10 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAdmin = AuthScope.of(context).isAdmin;
+    final palette = context.appColors;
+
     return Scaffold(
+      backgroundColor: palette.background,
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
@@ -49,9 +52,10 @@ class ProfilePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Profile',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 28,
                   height: 36 / 28,
                   fontWeight: FontWeight.bold,
@@ -64,6 +68,7 @@ class ProfilePage extends StatelessWidget {
               Text(
                 isAdmin ? 'Admin tools' : 'Your Caffora',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 18,
                   height: 24 / 18,
                   fontWeight: FontWeight.w600,
@@ -124,9 +129,10 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Preferences',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 18,
                   height: 24 / 18,
                   fontWeight: FontWeight.w600,
@@ -158,9 +164,10 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Support',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 18,
                   height: 24 / 18,
                   fontWeight: FontWeight.w600,

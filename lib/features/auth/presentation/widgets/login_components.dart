@@ -8,6 +8,7 @@ class LoginBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Column(
       children: [
         Container(
@@ -15,23 +16,24 @@ class LoginBrand extends StatelessWidget {
           height: 64,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.softSurface,
+            color: palette.softSurface,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x1AC86240),
+                color: palette.accentDark.withValues(alpha: .15),
                 blurRadius: 12,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
           child: Image.asset(AppAssets.logo),
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'Welcome back',
           textAlign: TextAlign.center,
           style: TextStyle(
+            color: palette.ink,
             fontSize: 28,
             height: 36 / 28,
             fontWeight: FontWeight.bold,
@@ -39,11 +41,11 @@ class LoginBrand extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Sign in to continue your Caffora experience.',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: AppColors.body,
+            color: palette.body,
             fontSize: 13,
             height: 18 / 13,
           ),
@@ -71,13 +73,14 @@ class LoginField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.ink,
+          style: TextStyle(
+            color: palette.ink,
             fontSize: 13,
             height: 20 / 13,
             fontWeight: FontWeight.w600,
@@ -87,29 +90,29 @@ class LoginField extends StatelessWidget {
         TextField(
           controller: controller,
           obscureText: obscureText,
-          style: const TextStyle(color: AppColors.ink, fontSize: 14),
+          style: TextStyle(color: palette.ink, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: AppColors.muted, fontSize: 14),
-            prefixIcon: Icon(icon, size: 19, color: AppColors.body),
+            hintStyle: TextStyle(color: palette.muted, fontSize: 14),
+            prefixIcon: Icon(icon, size: 19, color: palette.body),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: palette.surface,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 15,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: palette.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: palette.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.accentDark,
+              borderSide: BorderSide(
+                color: palette.accentDark,
                 width: 1.5,
               ),
             ),
@@ -134,6 +137,7 @@ class SocialLoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return SizedBox(
       width: double.infinity,
       height: 48,
@@ -142,15 +146,15 @@ class SocialLoginButton extends StatelessWidget {
         icon: icon,
         label: Text(
           label,
-          style: const TextStyle(
-            color: AppColors.ink,
+          style: TextStyle(
+            color: palette.ink,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
         style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          side: const BorderSide(color: AppColors.border),
+          backgroundColor: palette.surface,
+          side: BorderSide(color: palette.border),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -178,22 +182,23 @@ class _GoogleIconPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width * .38;
-    final stroke = size.width * .18;
-    final arcPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.butt;
+    final w = size.width;
+    final h = size.height;
+    final center = Offset(w / 2, h / 2);
+    final radius = w / 2;
 
-    void drawArc(Color color, double start, double sweep) {
-      arcPaint.color = color;
+    void drawArc(Color color, double startAngle, double sweepAngle) {
+      final paint = Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.5
+        ..strokeCap = StrokeCap.butt;
       canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        start,
-        sweep,
+        Rect.fromCircle(center: center, radius: radius - 1.75),
+        startAngle,
+        sweepAngle,
         false,
-        arcPaint,
+        paint,
       );
     }
 
@@ -202,17 +207,14 @@ class _GoogleIconPainter extends CustomPainter {
     drawArc(const Color(0xFFFBBC05), 2.9, 1.25);
     drawArc(const Color(0xFFEA4335), 4.15, 1.70);
 
-    final bluePaint = Paint()
+    final blueBar = Paint()
       ..color = const Color(0xFF4285F4)
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromLTWH(
-        size.width * .48,
-        size.height * .43,
-        size.width * .42,
-        stroke,
-      ),
-      bluePaint,
+      ..strokeWidth = 3.5
+      ..strokeCap = StrokeCap.square;
+    canvas.drawLine(
+      Offset(center.dx - 1, center.dy),
+      Offset(w - 1.5, center.dy),
+      blueBar,
     );
   }
 

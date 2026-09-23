@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/auth/auth_controller.dart';
+import '../../../../core/auth/auth_scope.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/widgets/home_components.dart';
 import '../../data/menu_data.dart';
@@ -27,6 +29,15 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   void _selectNavigation(int index) {
+    final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    if (role == UserRole.guest) {
+      if (index == 0) {
+        Navigator.of(context).pushReplacementNamed('/');
+      } else if (index == 2) {
+        Navigator.of(context).pushReplacementNamed('/appearance');
+      }
+      return;
+    }
     if (index == 0) {
       Navigator.of(context).pushReplacementNamed('/');
     } else if (index == 2) {
@@ -40,7 +51,9 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Scaffold(
+      backgroundColor: palette.background,
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),

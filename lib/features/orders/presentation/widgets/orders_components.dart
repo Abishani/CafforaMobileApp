@@ -8,25 +8,26 @@ class OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEE2DA),
+        color: palette.chipSurface,
         borderRadius: BorderRadius.circular(99),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x4DDCC1B8)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.cloud_off_outlined, size: 16, color: Color(0xFF56423C)),
-          SizedBox(width: 4),
+          Icon(Icons.cloud_off_outlined, size: 16, color: palette.body),
+          const SizedBox(width: 4),
           Text(
             'Offline mode • Cached receipt ready',
             style: TextStyle(
-              color: Color(0xFF56423C),
+              color: palette.ink,
               fontSize: 11,
               height: 14 / 11,
               fontWeight: FontWeight.w500,
@@ -51,13 +52,14 @@ class OrdersTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: AppColors.softSurface,
+        color: palette.softSurface,
         borderRadius: BorderRadius.circular(99),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x4DDCC1B8)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
       ),
       child: Row(
@@ -77,13 +79,17 @@ class OrdersTabs extends StatelessWidget {
               onTap: () => onChanged(false),
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFEE2DA),
+                decoration: BoxDecoration(
+                  color: palette.chipSurface,
                   shape: BoxShape.circle,
                 ),
-                child: const Text(
+                child: Text(
                   '6',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: palette.ink,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -109,15 +115,16 @@ class _OrderTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? AppColors.accentDark : Colors.transparent,
+          color: selected ? palette.accentDark : Colors.transparent,
           borderRadius: BorderRadius.circular(99),
           boxShadow: selected
-              ? const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)]
+              ? [BoxShadow(color: palette.cardShadow, blurRadius: 2)]
               : null,
         ),
         child: Row(
@@ -126,7 +133,7 @@ class _OrderTab extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: selected ? Colors.white : const Color(0xFF56423C),
+                color: selected ? Colors.white : palette.body,
                 fontSize: 12,
                 height: 16 / 12,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
@@ -150,15 +157,16 @@ class ActiveOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(24),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x4DDCC1B8)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,17 +174,18 @@ class ActiveOrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
                   Icon(
                     Icons.timer_outlined,
-                    color: AppColors.accentDark,
+                    color: palette.accentDark,
                     size: 18,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     'Ready in ~4 mins',
                     style: TextStyle(
+                      color: palette.ink,
                       fontSize: 18,
                       height: 24 / 18,
                       fontWeight: FontWeight.bold,
@@ -190,17 +199,17 @@ class ActiveOrderCard extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEE2DA),
+                  color: palette.chipSurface,
                   borderRadius: BorderRadius.circular(99),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.circle, size: 8, color: AppColors.accentDark),
-                    SizedBox(width: 6),
+                    Icon(Icons.circle, size: 8, color: palette.accentDark),
+                    const SizedBox(width: 6),
                     Text(
                       'Total Paid: \$14.99',
                       style: TextStyle(
-                        color: AppColors.accentDark,
+                        color: palette.accentDark,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -211,10 +220,10 @@ class ActiveOrderCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          const Text(
+          Text(
             'Order #4892 • Dine-In • Table 04',
             style: TextStyle(
-              color: Color(0xFF56423C),
+              color: palette.body,
               fontSize: 12,
               height: 16 / 12,
             ),
@@ -225,10 +234,10 @@ class ActiveOrderCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: AppColors.softSurface,
+              color: palette.softSurface,
               borderRadius: BorderRadius.circular(20),
-              border: const Border.fromBorderSide(
-                BorderSide(color: Color(0x33DCC1B8)),
+              border: Border.fromBorderSide(
+                BorderSide(color: palette.border),
               ),
             ),
             child: Row(
@@ -251,7 +260,8 @@ class ActiveOrderCard extends StatelessWidget {
                         order.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: palette.ink,
                           fontSize: 14,
                           height: 20 / 14,
                           fontWeight: FontWeight.bold,
@@ -266,8 +276,8 @@ class ActiveOrderCard extends StatelessWidget {
                               order.subtitle,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Color(0xFF56423C),
+                              style: TextStyle(
+                                color: palette.body,
                                 fontSize: 12,
                                 height: 16 / 12,
                               ),
@@ -276,8 +286,8 @@ class ActiveOrderCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             'Total Paid:\n${order.total}',
-                            style: const TextStyle(
-                              color: AppColors.accentDark,
+                            style: TextStyle(
+                              color: palette.accentDark,
                               fontSize: 12,
                               height: 16 / 12,
                               fontWeight: FontWeight.bold,
@@ -297,22 +307,22 @@ class ActiveOrderCard extends StatelessWidget {
             height: 48,
             child: OutlinedButton.icon(
               onPressed: onQr,
-              icon: const Icon(
+              icon: Icon(
                 Icons.qr_code_2,
                 size: 16,
-                color: AppColors.accentDark,
+                color: palette.accentDark,
               ),
-              label: const Text(
+              label: Text(
                 'Show Pickup QR',
                 style: TextStyle(
-                  color: AppColors.ink,
+                  color: palette.ink,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                backgroundColor: const Color(0xFFFEE2DA),
-                side: const BorderSide(color: Color(0x4DDCC1B8)),
+                backgroundColor: palette.chipSurface,
+                side: BorderSide(color: palette.border),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -330,6 +340,7 @@ class ProgressTracker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     const labels = ['Confirmed', 'Ready in ~4 mins', 'Ready', 'Picked Up'];
     const icons = [
       Icons.check,
@@ -340,10 +351,10 @@ class ProgressTracker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        color: AppColors.softSurface,
+        color: palette.softSurface,
         borderRadius: BorderRadius.circular(20),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x33DCC1B8)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
       ),
       child: Row(
@@ -355,12 +366,12 @@ class ProgressTracker extends StatelessWidget {
                   CircleAvatar(
                     radius: 14,
                     backgroundColor: index < 2
-                        ? AppColors.accentDark
-                        : const Color(0xFFFEE2DA),
+                        ? palette.accentDark
+                        : palette.chipSurface,
                     child: Icon(
                       icons[index],
                       size: 15,
-                      color: index < 2 ? Colors.white : AppColors.body,
+                      color: index < 2 ? Colors.white : palette.body,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -368,7 +379,7 @@ class ProgressTracker extends StatelessWidget {
                     labels[index],
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: index == 1 ? AppColors.accentDark : AppColors.ink,
+                      color: index == 1 ? palette.accentDark : palette.body,
                       fontSize: 11,
                       height: 14 / 11,
                       fontWeight: index == 1

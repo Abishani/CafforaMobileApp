@@ -4,6 +4,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/auth/auth_controller.dart';
 import '../../../../core/auth/auth_scope.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_controller.dart';
 import '../../data/home_data.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -21,10 +22,12 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isGuest = AuthScope.maybeOf(context)?.isGuest ?? false;
+    final palette = context.appColors;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xD9FFF8F6),
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: palette.isDark ? const Color(0xE6171210) : const Color(0xD9FFF8F6),
+        border: Border(bottom: BorderSide(color: palette.border)),
       ),
       child: SafeArea(
         bottom: false,
@@ -36,22 +39,47 @@ class HomeHeader extends StatelessWidget {
               children: [
                 Image.asset(AppAssets.logo, width: 32, height: 32),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'Caffora',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: palette.ink,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const Spacer(),
-                if (isGuest)
+                if (isGuest) ...[
+                  IconButton(
+                    onPressed: () {
+                      final themeScope = ThemeScope.maybeOf(context);
+                      if (themeScope != null) {
+                        themeScope.setThemeMode(
+                          palette.isDark ? ThemeMode.light : ThemeMode.dark,
+                        );
+                      }
+                    },
+                    icon: Icon(
+                      palette.isDark
+                          ? Icons.light_mode_outlined
+                          : Icons.dark_mode_outlined,
+                      size: 20,
+                      color: palette.accentDark,
+                    ),
+                    tooltip: palette.isDark
+                        ? 'Switch to light mode'
+                        : 'Switch to dark mode',
+                  ),
                   IconButton(
                     onPressed: () =>
                         Navigator.of(context).pushReplacementNamed('/login'),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.login_outlined,
                       size: 20,
-                      color: AppColors.accentDark,
+                      color: palette.accentDark,
                     ),
                     tooltip: 'Login to place an order',
-                  )
+                  ),
+                ]
                 else if (showNotifications)
                   SizedBox(
                     width: 40,
@@ -60,15 +88,15 @@ class HomeHeader extends StatelessWidget {
                       child: Icon(
                         Icons.notifications_none_outlined,
                         size: 20,
-                        color: AppColors.accent,
+                        color: palette.accent,
                       ),
                     ),
                   )
                 else if (showActionLabel)
                   Text(
                     actionLabel,
-                    style: const TextStyle(
-                      color: AppColors.body,
+                    style: TextStyle(
+                      color: palette.body,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -78,10 +106,13 @@ class HomeHeader extends StatelessWidget {
                   Container(
                     width: 32,
                     height: 32,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(color: Color(0x33C86240), spreadRadius: 1),
+                        BoxShadow(
+                          color: palette.accentDark.withValues(alpha: .2),
+                          spreadRadius: 1,
+                        ),
                       ],
                     ),
                     child: ClipOval(child: Image.asset(AppAssets.profile)),
@@ -101,31 +132,32 @@ class HomeSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return TextField(
-      style: const TextStyle(color: AppColors.ink, fontSize: 14),
+      style: TextStyle(color: palette.ink, fontSize: 14),
       decoration: InputDecoration(
         hintText: 'Search coffee or bakery...',
-        hintStyle: const TextStyle(color: AppColors.muted, fontSize: 14),
-        prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.body),
+        hintStyle: TextStyle(color: palette.muted, fontSize: 14),
+        prefixIcon: Icon(Icons.search, size: 18, color: palette.body),
         suffixIcon: IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.tune, size: 16, color: AppColors.body),
+          icon: Icon(Icons.tune, size: 16, color: palette.body),
           tooltip: 'Filter menu',
         ),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: palette.surface,
         contentPadding: const EdgeInsets.symmetric(vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: palette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: palette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.accent),
+          borderSide: BorderSide(color: palette.accent),
         ),
       ),
     );
@@ -139,15 +171,16 @@ class PickupBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.all(25),
       decoration: BoxDecoration(
-        color: AppColors.softSurface,
+        color: palette.softSurface,
         borderRadius: BorderRadius.circular(16),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.border),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 4)],
       ),
       child: Stack(
         children: [
@@ -157,14 +190,14 @@ class PickupBanner extends StatelessWidget {
             child: Container(
               width: 86,
               height: 86,
-              decoration: const BoxDecoration(
-                color: Color(0xFFEFD9D2),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(18)),
+              decoration: BoxDecoration(
+                color: palette.chipSurface,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(18)),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.local_cafe,
                 size: 42,
-                color: Colors.white,
+                color: palette.isDark ? palette.accent : Colors.white,
               ),
             ),
           ),
@@ -173,21 +206,22 @@ class PickupBanner extends StatelessWidget {
             children: [
               const _Pill(label: 'EXPRESS PICKUP'),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Order ahead & pick up in 5 mins',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 18,
                   height: 24 / 18,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 4),
-              const SizedBox(
+              SizedBox(
                 width: 290,
                 child: Text(
                   'Freshly ground roasts & warm pastries ready upon arrival.',
                   style: TextStyle(
-                    color: AppColors.body,
+                    color: palette.body,
                     fontSize: 12,
                     height: 16 / 12,
                   ),
@@ -199,7 +233,7 @@ class PickupBanner extends StatelessWidget {
                 icon: const Icon(Icons.arrow_forward, size: 14),
                 label: const Text('Order Now'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.accent,
+                  backgroundColor: palette.accent,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -238,6 +272,7 @@ class HomeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Column(
       children: [
         Row(
@@ -253,14 +288,15 @@ class HomeSection extends StatelessWidget {
                         width: 6,
                         height: 16,
                         decoration: BoxDecoration(
-                          color: AppColors.accent,
+                          color: palette.accent,
                           borderRadius: BorderRadius.circular(99),
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: palette.ink,
                           fontSize: 18,
                           height: 24 / 18,
                           fontWeight: FontWeight.w600,
@@ -271,8 +307,8 @@ class HomeSection extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.body,
+                    style: TextStyle(
+                      color: palette.body,
                       fontSize: 12,
                       height: 16 / 12,
                     ),
@@ -280,7 +316,13 @@ class HomeSection extends StatelessWidget {
                 ],
               ),
             ),
-            TextButton(onPressed: () {}, child: const Text('See all')),
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                'See all',
+                style: TextStyle(color: palette.accent),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -315,15 +357,16 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.border),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 4)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,7 +401,8 @@ class ProductCard extends StatelessWidget {
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: palette.ink,
                     fontSize: 14,
                     height: 20 / 14,
                     fontWeight: FontWeight.w600,
@@ -368,8 +412,8 @@ class ProductCard extends StatelessWidget {
                   product.description,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.body,
+                  style: TextStyle(
+                    color: palette.body,
                     fontSize: 12,
                     height: 16 / 12,
                   ),
@@ -380,8 +424,8 @@ class ProductCard extends StatelessWidget {
                   children: [
                     Text(
                       product.price,
-                      style: const TextStyle(
-                        color: AppColors.accentDark,
+                      style: TextStyle(
+                        color: palette.accentDark,
                         fontSize: 18,
                         height: 24 / 18,
                         fontWeight: FontWeight.bold,
@@ -403,7 +447,7 @@ class ProductCard extends StatelessWidget {
                       icon: const Icon(Icons.add, size: 18),
                       color: Colors.white,
                       style: IconButton.styleFrom(
-                        backgroundColor: AppColors.accent,
+                        backgroundColor: palette.accent,
                         fixedSize: const Size(32, 32),
                         padding: EdgeInsets.zero,
                       ),
@@ -428,16 +472,17 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
       decoration: BoxDecoration(
-        color: filled ? AppColors.accent : AppColors.chipSurface,
+        color: filled ? palette.accent : palette.chipSurface,
         borderRadius: BorderRadius.circular(99),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: filled ? Colors.white : AppColors.accentDark,
+          color: filled ? Colors.white : palette.accentDark,
           fontSize: 11,
           height: 14 / 11,
           fontWeight: FontWeight.w600,
@@ -463,10 +508,12 @@ class HomeBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
+    final palette = context.appColors;
     final items = switch (role) {
       UserRole.guest => const [
         (Icons.coffee_outlined, 'Home'),
         (Icons.menu_book_outlined, 'Menu'),
+        (Icons.palette_outlined, 'Appearance'),
       ],
       UserRole.admin => const [
         (Icons.coffee_outlined, 'Home'),
@@ -483,14 +530,14 @@ class HomeBottomNavigation extends StatelessWidget {
       ],
     };
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xE6FFF8F6),
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: palette.isDark ? const Color(0xF2171210) : const Color(0xE6FFF8F6),
+        border: Border(top: BorderSide(color: palette.border)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x0F2B1810),
+            color: palette.isDark ? const Color(0x33000000) : const Color(0x0F2B1810),
             blurRadius: 12,
-            offset: Offset(0, -1),
+            offset: const Offset(0, -1),
           ),
         ],
       ),
@@ -514,8 +561,8 @@ class HomeBottomNavigation extends StatelessWidget {
                               items[index].$1,
                               size: 20,
                               color: index == selectedIndex
-                                  ? AppColors.accent
-                                  : AppColors.body,
+                                  ? palette.accent
+                                  : palette.muted,
                             ),
                             if (role == UserRole.registered &&
                                 index == 2 &&
@@ -527,8 +574,8 @@ class HomeBottomNavigation extends StatelessWidget {
                                   width: 16,
                                   height: 16,
                                   alignment: Alignment.center,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.accent,
+                                  decoration: BoxDecoration(
+                                    color: palette.accent,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
@@ -548,8 +595,8 @@ class HomeBottomNavigation extends StatelessWidget {
                           items[index].$2,
                           style: TextStyle(
                             color: index == selectedIndex
-                                ? AppColors.accent
-                                : AppColors.body,
+                                ? palette.accent
+                                : palette.muted,
                             fontSize: 11,
                             height: 14 / 11,
                             fontWeight: FontWeight.w500,

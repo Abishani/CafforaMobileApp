@@ -2,51 +2,61 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/auth/auth_scope.dart';
 
 class ProfileIdentityCard extends StatelessWidget {
   const ProfileIdentityCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+    final displayName = AuthScope.maybeOf(context)?.displayName ?? 'Alex';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(20),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.border),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
       child: Row(
         children: [
           Container(
             width: 64,
             height: 64,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Color(0x33C86240), spreadRadius: 1)],
+              boxShadow: [
+                BoxShadow(
+                  color: palette.accentDark.withValues(alpha: .2),
+                  spreadRadius: 1,
+                ),
+              ],
             ),
             child: ClipOval(child: Image.asset(AppAssets.profile)),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Alex Morgan',
+                  '$displayName Morgan',
                   style: TextStyle(
+                    color: palette.ink,
                     fontSize: 18,
                     height: 24 / 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'alex.morgan@example.com',
+                  '${displayName.toLowerCase()}.morgan@example.com',
                   style: TextStyle(
-                    color: AppColors.body,
+                    color: palette.body,
                     fontSize: 12,
                     height: 16 / 12,
                   ),
@@ -56,10 +66,10 @@ class ProfileIdentityCard extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {},
-            icon: const Icon(
+            icon: Icon(
               Icons.edit_outlined,
               size: 18,
-              color: AppColors.accentDark,
+              color: palette.accentDark,
             ),
             tooltip: 'Edit profile',
           ),
@@ -76,13 +86,14 @@ class ProfileSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.border),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
       ),
       child: Column(children: children),
@@ -106,6 +117,7 @@ class ProfileActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -117,10 +129,10 @@ class ProfileActionTile extends StatelessWidget {
               height: 36,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.softSurface,
+                color: palette.softSurface,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 19, color: AppColors.accentDark),
+              child: Icon(icon, size: 19, color: palette.accentDark),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -129,7 +141,8 @@ class ProfileActionTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
+                      color: palette.ink,
                       fontSize: 14,
                       height: 20 / 14,
                       fontWeight: FontWeight.w600,
@@ -138,8 +151,8 @@ class ProfileActionTile extends StatelessWidget {
                   const SizedBox(height: 1),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.body,
+                    style: TextStyle(
+                      color: palette.body,
                       fontSize: 12,
                       height: 16 / 12,
                     ),
@@ -147,7 +160,7 @@ class ProfileActionTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.body, size: 20),
+            Icon(Icons.chevron_right, color: palette.body, size: 20),
           ],
         ),
       ),
@@ -159,6 +172,8 @@ class ProfileDivider extends StatelessWidget {
   const ProfileDivider({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      const Divider(height: 1, indent: 64, color: AppColors.border);
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    return Divider(height: 1, indent: 64, color: palette.border);
+  }
 }

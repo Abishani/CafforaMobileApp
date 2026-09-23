@@ -45,11 +45,13 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final itemCount = _quantities.fold<int>(
       0,
       (sum, quantity) => sum + quantity,
     );
     return Scaffold(
+      backgroundColor: palette.background,
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),

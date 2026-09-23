@@ -24,6 +24,7 @@ class ThemePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -37,16 +38,18 @@ class ThemePreviewCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selected
-                      ? AppColors.accentDark
-                      : const Color(0xFFE8CECA),
+                      ? palette.accentDark
+                      : (palette.isDark
+                          ? const Color(0xFF3A2D27)
+                          : const Color(0xFFE8CECA)),
                   width: selected ? 2 : 1,
                 ),
                 boxShadow: selected
-                    ? const [
+                    ? [
                         BoxShadow(
-                          color: Color(0x26C86240),
+                          color: palette.accentDark.withValues(alpha: .25),
                           blurRadius: 12,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ]
                     : null,
@@ -78,7 +81,7 @@ class ThemePreviewCard extends StatelessWidget {
                           width: 12,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: AppColors.accentDark,
+                            color: palette.accentDark,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -105,7 +108,7 @@ class ThemePreviewCard extends StatelessWidget {
                     child: Icon(
                       icon,
                       size: 14,
-                      color: selected ? AppColors.accentDark : line,
+                      color: selected ? palette.accentDark : line,
                     ),
                   ),
                 ],
@@ -115,7 +118,7 @@ class ThemePreviewCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: selected ? AppColors.accentDark : AppColors.body,
+                color: selected ? palette.accentDark : palette.body,
                 fontSize: 12,
                 height: 16 / 12,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
@@ -147,10 +150,20 @@ class ThemePreferenceOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
+    final rowBg = selected
+        ? (palette.isDark
+            ? palette.softSurface
+            : const Color(0xCCFFF1ED))
+        : palette.surface;
+    final iconBg = selected
+        ? (palette.isDark ? palette.chipSurface : const Color(0xFFFFDCD1))
+        : palette.softSurface;
+
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: selected ? const Color(0xCCFFF1ED) : Colors.white,
+        color: rowBg,
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
@@ -159,15 +172,13 @@ class ThemePreferenceOption extends StatelessWidget {
               height: 36,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected
-                    ? const Color(0xFFFFDCD1)
-                    : AppColors.softSurface,
+                color: iconBg,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 18,
-                color: selected ? AppColors.accentDark : AppColors.body,
+                color: selected ? palette.accentDark : palette.body,
               ),
             ),
             const SizedBox(width: 14),
@@ -177,7 +188,8 @@ class ThemePreferenceOption extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
+                      color: palette.ink,
                       fontSize: 14,
                       height: 20 / 14,
                       fontWeight: FontWeight.w600,
@@ -186,8 +198,8 @@ class ThemePreferenceOption extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.body,
+                    style: TextStyle(
+                      color: palette.body,
                       fontSize: 12,
                       height: 18 / 12,
                     ),
@@ -202,16 +214,14 @@ class ThemePreferenceOption extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected
-                      ? AppColors.accentDark
-                      : const Color(0xFFDCC1B8),
+                  color: selected ? palette.accentDark : palette.border,
                   width: 2,
                 ),
               ),
               child: selected
                   ? Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.accentDark,
+                      decoration: BoxDecoration(
+                        color: palette.accentDark,
                         shape: BoxShape.circle,
                       ),
                     )

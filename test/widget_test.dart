@@ -133,6 +133,16 @@ void main() {
     expect(find.text('THEME PREFERENCE'), findsOneWidget);
     expect(find.text('System Default'), findsOneWidget);
     expect(find.text('Warm cream & linen aesthetic'), findsOneWidget);
+
+    // Switch to Dark mode
+    await tester.tap(find.text('Dark').last);
+    await tester.pumpAndSettle();
+    expect(Theme.of(tester.element(find.text('Appearance'))).brightness, Brightness.dark);
+
+    // Switch to Light mode
+    await tester.tap(find.text('Light').last);
+    await tester.pumpAndSettle();
+    expect(Theme.of(tester.element(find.text('Appearance'))).brightness, Brightness.light);
   });
 
   testWidgets('login route renders the Caffora sign-in screen', (
@@ -230,5 +240,52 @@ void main() {
     expect(find.text('Admin tools'), findsOneWidget);
     expect(find.text('Manage menu'), findsOneWidget);
     expect(find.text('Manage orders'), findsOneWidget);
+  });
+
+  testWidgets('guest user can toggle color mode from header', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(CafforaApp(authController: AuthController.guest()));
+
+    expect(Theme.of(tester.element(find.text('Good morning, Alex'))).brightness, Brightness.light);
+
+    // Tap quick theme toggle in header
+    await tester.tap(find.byIcon(Icons.dark_mode_outlined));
+    await tester.pumpAndSettle();
+
+    expect(Theme.of(tester.element(find.text('Good morning, Alex'))).brightness, Brightness.dark);
+
+    // Tap to toggle back to light
+    await tester.tap(find.byIcon(Icons.light_mode_outlined));
+    await tester.pumpAndSettle();
+
+    expect(Theme.of(tester.element(find.text('Good morning, Alex'))).brightness, Brightness.light);
+  });
+
+  testWidgets('guest user can open Appearance and switch theme', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(CafforaApp(authController: AuthController.guest()));
+
+    // Tap Appearance in guest bottom nav
+    await tester.tap(find.text('Appearance').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('THEME PREFERENCE'), findsOneWidget);
+
+    // Select Dark
+    await tester.tap(find.text('Dark').last);
+    await tester.pumpAndSettle();
+    expect(Theme.of(tester.element(find.text('Appearance').first)).brightness, Brightness.dark);
+
+    // Select Light
+    await tester.tap(find.text('Light').last);
+    await tester.pumpAndSettle();
+    expect(Theme.of(tester.element(find.text('Appearance').first)).brightness, Brightness.light);
+
+    // Guest back button returns to Home
+    await tester.tap(find.byTooltip('Back to Home'));
+    await tester.pumpAndSettle();
+    expect(find.text('Good morning, Alex'), findsOneWidget);
   });
 }

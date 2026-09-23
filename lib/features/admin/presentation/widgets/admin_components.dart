@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../menu/data/menu_data.dart';
 
 class AdminMetricCard extends StatelessWidget {
   const AdminMetricCard({
@@ -18,16 +19,17 @@ class AdminMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: palette.surface,
           borderRadius: BorderRadius.circular(16),
-          border: const Border.fromBorderSide(
-            BorderSide(color: AppColors.border),
+          border: Border.fromBorderSide(
+            BorderSide(color: palette.border),
           ),
-          boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+          boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,16 +39,16 @@ class AdminMetricCard extends StatelessWidget {
               height: 34,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.softSurface,
+                color: palette.softSurface,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 18, color: AppColors.accentDark),
+              child: Icon(icon, size: 18, color: palette.accentDark),
             ),
             const SizedBox(height: 12),
             Text(
               label,
-              style: const TextStyle(
-                color: AppColors.body,
+              style: TextStyle(
+                color: palette.body,
                 fontSize: 11,
                 height: 14 / 11,
               ),
@@ -54,7 +56,8 @@ class AdminMetricCard extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
+                color: palette.ink,
                 fontSize: 22,
                 height: 28 / 22,
                 fontWeight: FontWeight.bold,
@@ -63,8 +66,8 @@ class AdminMetricCard extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               change,
-              style: const TextStyle(
-                color: AppColors.accentDark,
+              style: TextStyle(
+                color: palette.accentDark,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -92,15 +95,16 @@ class AdminSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: const Border.fromBorderSide(
-          BorderSide(color: AppColors.border),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +114,8 @@ class AdminSectionCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
+                  color: palette.ink,
                   fontSize: 16,
                   height: 22 / 16,
                   fontWeight: FontWeight.w600,
@@ -120,8 +125,8 @@ class AdminSectionCard extends StatelessWidget {
                 onPressed: action.isEmpty ? null : onAction,
                 child: Text(
                   action,
-                  style: const TextStyle(
-                    color: AppColors.accentDark,
+                  style: TextStyle(
+                    color: palette.accentDark,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -155,6 +160,7 @@ class AdminOrderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
@@ -165,7 +171,8 @@ class AdminOrderRow extends StatelessWidget {
               children: [
                 Text(
                   order,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: palette.ink,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -173,14 +180,18 @@ class AdminOrderRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   customer,
-                  style: const TextStyle(color: AppColors.body, fontSize: 11),
+                  style: TextStyle(color: palette.body, fontSize: 11),
                 ),
               ],
             ),
           ),
           Text(
             amount,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: palette.ink,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(width: 10),
           Container(
@@ -209,6 +220,7 @@ class AdminBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     const values = [0.42, 0.62, 0.52, 0.78, 0.67, 0.92, 0.72];
     return SizedBox(
       height: 150,
@@ -225,8 +237,10 @@ class AdminBarChart extends StatelessWidget {
                   height: 112 * values[index],
                   decoration: BoxDecoration(
                     color: index == 5
-                        ? AppColors.accentDark
-                        : const Color(0xFFF8CFC2),
+                        ? palette.accentDark
+                        : (palette.isDark
+                            ? const Color(0xFF3B2B24)
+                            : const Color(0xFFF8CFC2)),
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(6),
                     ),
@@ -235,10 +249,116 @@ class AdminBarChart extends StatelessWidget {
                 const SizedBox(height: 7),
                 Text(
                   ['M', 'T', 'W', 'T', 'F', 'S', 'S'][index],
-                  style: const TextStyle(color: AppColors.body, fontSize: 10),
+                  style: TextStyle(color: palette.body, fontSize: 10),
                 ),
               ],
             ),
+        ],
+      ),
+    );
+  }
+}
+
+class AdminMenuItemRow extends StatelessWidget {
+  const AdminMenuItemRow({super.key, required this.product});
+
+  final MenuProduct product;
+
+  bool get _isEmoji => product.image.length <= 2 && product.isCustom;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          // Thumbnail / emoji icon
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: palette.softSurface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.center,
+            child: _isEmoji
+                ? Text(product.image, style: const TextStyle(fontSize: 24))
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      product.image,
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Icon(
+                        Icons.fastfood_outlined,
+                        size: 22,
+                        color: palette.accentDark,
+                      ),
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        product.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: palette.ink,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (product.isCustom) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: palette.accent.withValues(alpha: .15),
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Text(
+                          'New',
+                          style: TextStyle(
+                            color: palette.accentDark,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  product.category,
+                  style: TextStyle(
+                    color: palette.body,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            product.price,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: palette.ink,
+            ),
+          ),
         ],
       ),
     );

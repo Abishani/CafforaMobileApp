@@ -11,25 +11,27 @@ class CartTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
           onPressed: onBack,
-          icon: const Icon(Icons.chevron_left, size: 22),
+          icon: Icon(Icons.chevron_left, size: 22, color: palette.ink),
           style: IconButton.styleFrom(
-            backgroundColor: Colors.white,
+            backgroundColor: palette.surface,
             fixedSize: const Size(40, 40),
-            side: const BorderSide(color: Color(0x80F2DFD9)),
+            side: BorderSide(color: palette.border),
             padding: EdgeInsets.zero,
           ),
           tooltip: 'Go back',
         ),
-        const Column(
+        Column(
           children: [
             Text(
               'Your Bag',
               style: TextStyle(
+                color: palette.ink,
                 fontSize: 18,
                 height: 24 / 18,
                 fontWeight: FontWeight.w600,
@@ -38,7 +40,7 @@ class CartTopBar extends StatelessWidget {
             Text(
               '2 items',
               style: TextStyle(
-                color: Color(0xFF78655E),
+                color: palette.body,
                 fontSize: 11,
                 height: 14 / 11,
                 fontWeight: FontWeight.w500,
@@ -49,10 +51,10 @@ class CartTopBar extends StatelessWidget {
         ),
         IconButton(
           onPressed: onTable,
-          icon: const Icon(
+          icon: Icon(
             Icons.table_restaurant_outlined,
             size: 18,
-            color: AppColors.body,
+            color: palette.body,
           ),
           tooltip: 'Table 04',
         ),
@@ -73,15 +75,16 @@ class ServiceModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(99),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x99F2DFD9)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -123,12 +126,13 @@ class _ModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColors.accentDark : Colors.transparent,
+          color: selected ? palette.accentDark : Colors.transparent,
           borderRadius: BorderRadius.circular(99),
         ),
         child: FittedBox(
@@ -139,13 +143,13 @@ class _ModeButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 14,
-                color: selected ? Colors.white : AppColors.body,
+                color: selected ? Colors.white : palette.body,
               ),
               const SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? Colors.white : AppColors.body,
+                  color: selected ? Colors.white : palette.body,
                   fontSize: 12,
                   height: 16 / 12,
                   fontWeight: FontWeight.w600,
@@ -178,15 +182,16 @@ class CartItemsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(12),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x66F2DFD9)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
       child: Column(
         children: [
@@ -199,9 +204,9 @@ class CartItemsCard extends StatelessWidget {
               onRemove: () => onRemove(index),
             ),
             if (index < items.length - 1)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Divider(height: 1, color: Color(0xB3F2DFD9)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Divider(height: 1, color: palette.border),
               ),
           ],
         ],
@@ -227,6 +232,7 @@ class _CartItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -252,7 +258,8 @@ class _CartItemRow extends StatelessWidget {
                       item.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
+                        color: palette.ink,
                         fontSize: 14,
                         height: 20 / 14,
                         fontWeight: FontWeight.w600,
@@ -262,7 +269,8 @@ class _CartItemRow extends StatelessWidget {
                   ),
                   Text(
                     '\$${item.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
+                      color: palette.ink,
                       fontSize: 14,
                       height: 20 / 14,
                       fontWeight: FontWeight.w600,
@@ -276,8 +284,8 @@ class _CartItemRow extends StatelessWidget {
                 item.description,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFF78655E),
+                style: TextStyle(
+                  color: palette.body,
                   fontSize: 12,
                   height: 16 / 12,
                 ),
@@ -294,7 +302,7 @@ class _CartItemRow extends StatelessWidget {
                   IconButton(
                     onPressed: onRemove,
                     icon: const Icon(Icons.delete_outline, size: 17),
-                    color: const Color(0xFF9B8179),
+                    color: palette.muted,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
                       minWidth: 28,
@@ -325,16 +333,17 @@ class _Stepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.softSurface,
+        color: palette.softSurface,
         borderRadius: BorderRadius.circular(99),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: onDecrease,
-            icon: const Icon(Icons.remove, size: 14),
+            icon: Icon(Icons.remove, size: 14, color: palette.ink),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints.tightFor(width: 28, height: 28),
             tooltip: 'Decrease quantity',
@@ -343,12 +352,16 @@ class _Stepper extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               '$quantity',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: palette.ink,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           IconButton(
             onPressed: onIncrease,
-            icon: const Icon(Icons.add, size: 14),
+            icon: Icon(Icons.add, size: 14, color: palette.ink),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints.tightFor(width: 28, height: 28),
             tooltip: 'Increase quantity',
@@ -371,16 +384,17 @@ class OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     final gratuity = tip == 18 ? '\$2.13 (18%)' : '+\$0.00';
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(12),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x66F2DFD9)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [BoxShadow(color: Color(0x0D000000), blurRadius: 2)],
+        boxShadow: [BoxShadow(color: palette.cardShadow, blurRadius: 2)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,10 +412,10 @@ class OrderSummaryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'BARISTA GRATUITY',
                 style: TextStyle(
-                  color: Color(0xFF78655E),
+                  color: palette.body,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   letterSpacing: .55,
@@ -409,8 +423,8 @@ class OrderSummaryCard extends StatelessWidget {
               ),
               Text(
                 gratuity,
-                style: const TextStyle(
-                  color: AppColors.accentDark,
+                style: TextStyle(
+                  color: palette.accentDark,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -433,11 +447,11 @@ class OrderSummaryCard extends StatelessWidget {
                 ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Divider(height: 1, color: Color(0xB3F2DFD9)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Divider(height: 1, color: palette.border),
           ),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -447,6 +461,7 @@ class OrderSummaryCard extends StatelessWidget {
                   Text(
                     'Total',
                     style: TextStyle(
+                      color: palette.ink,
                       fontSize: 18,
                       height: 24 / 18,
                       fontWeight: FontWeight.w600,
@@ -455,7 +470,7 @@ class OrderSummaryCard extends StatelessWidget {
                   Text(
                     'All taxes & tip included',
                     style: TextStyle(
-                      color: Color(0xFF78655E),
+                      color: palette.body,
                       fontSize: 11,
                       height: 14 / 11,
                       fontWeight: FontWeight.w500,
@@ -466,7 +481,7 @@ class OrderSummaryCard extends StatelessWidget {
               Text(
                 '\$14.99',
                 style: TextStyle(
-                  color: AppColors.accentDark,
+                  color: palette.accentDark,
                   fontSize: 28,
                   height: 36 / 28,
                   fontWeight: FontWeight.bold,
@@ -493,29 +508,32 @@ class _SummaryRow extends StatelessWidget {
   final bool accent;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          color: accent ? AppColors.accentDark : const Color(0xFF78655E),
-          fontSize: 14,
-          height: 20 / 14,
-          fontWeight: accent ? FontWeight.w500 : FontWeight.normal,
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: accent ? palette.accentDark : palette.body,
+            fontSize: 14,
+            height: 20 / 14,
+            fontWeight: accent ? FontWeight.w500 : FontWeight.normal,
+          ),
         ),
-      ),
-      Text(
-        value,
-        style: TextStyle(
-          color: accent ? AppColors.accentDark : AppColors.ink,
-          fontSize: 14,
-          height: 20 / 14,
-          fontWeight: FontWeight.w600,
+        Text(
+          value,
+          style: TextStyle(
+            color: accent ? palette.accentDark : palette.ink,
+            fontSize: 14,
+            height: 20 / 14,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 class _TipButton extends StatelessWidget {
@@ -530,26 +548,29 @@ class _TipButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? AppColors.accentDark : AppColors.softSurface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        value == 0 ? 'None' : '$value%',
-        style: TextStyle(
-          color: selected ? Colors.white : const Color(0xFF78655E),
-          fontSize: 12,
-          height: 16 / 12,
-          fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? palette.accentDark : palette.softSurface,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          value == 0 ? 'None' : '$value%',
+          style: TextStyle(
+            color: selected ? Colors.white : palette.body,
+            fontSize: 12,
+            height: 16 / 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class PlaceOrderButton extends StatelessWidget {
@@ -558,36 +579,39 @@ class PlaceOrderButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => FilledButton(
-    onPressed: onPressed,
-    style: FilledButton.styleFrom(
-      backgroundColor: AppColors.accentDark,
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 8,
-      shadowColor: AppColors.accent.withValues(alpha: .25),
-    ),
-    child: const Column(
-      children: [
-        Text(
-          'Place Order • \$14.99',
-          style: TextStyle(
-            fontSize: 18,
-            height: 24 / 18,
-            fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: palette.accentDark,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 8,
+        shadowColor: palette.accent.withValues(alpha: .25),
+      ),
+      child: const Column(
+        children: [
+          Text(
+            'Place Order • \$14.99',
+            style: TextStyle(
+              fontSize: 18,
+              height: 24 / 18,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        SizedBox(height: 2),
-        Text(
-          'Table 04 • Ready in ~6–8 minutes',
-          style: TextStyle(
-            fontSize: 11,
-            height: 14 / 11,
-            fontWeight: FontWeight.w500,
+          SizedBox(height: 2),
+          Text(
+            'Table 04 • Ready in ~6–8 minutes',
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }

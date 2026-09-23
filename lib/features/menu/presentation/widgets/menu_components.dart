@@ -9,13 +9,15 @@ class MenuTitleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           'Menu',
           style: TextStyle(
+            color: palette.ink,
             fontSize: 32,
             height: 40 / 32,
             fontWeight: FontWeight.bold,
@@ -25,27 +27,28 @@ class MenuTitleRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 7),
           decoration: BoxDecoration(
-            color: const Color(0xFFFEE2DA),
+            color: palette.chipSurface,
             borderRadius: BorderRadius.circular(99),
-            border: const Border.fromBorderSide(
-              BorderSide(color: AppColors.border),
+            border: Border.fromBorderSide(
+              BorderSide(color: palette.border),
             ),
-            boxShadow: const [
-              BoxShadow(color: Color(0x0D000000), blurRadius: 2),
+            boxShadow: [
+              BoxShadow(color: palette.cardShadow, blurRadius: 2),
             ],
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.table_restaurant,
                 size: 15,
-                color: AppColors.accentDark,
+                color: palette.accentDark,
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 'Table 04',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 12,
                   height: 16 / 12,
                   fontWeight: FontWeight.w600,
@@ -64,26 +67,27 @@ class MenuSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return TextField(
-      style: const TextStyle(color: AppColors.ink, fontSize: 14),
+      style: TextStyle(color: palette.ink, fontSize: 14),
       decoration: InputDecoration(
         hintText: 'Search coffee, tea, pastries...',
-        hintStyle: const TextStyle(color: Color(0xFFA38B85), fontSize: 14),
-        prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.body),
+        hintStyle: TextStyle(color: palette.muted, fontSize: 14),
+        prefixIcon: Icon(Icons.search, size: 18, color: palette.body),
         filled: true,
-        fillColor: AppColors.softSurface,
+        fillColor: palette.surface,
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF6B7280)),
+          borderSide: BorderSide(color: palette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF6B7280)),
+          borderSide: BorderSide(color: palette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.accent),
+          borderSide: BorderSide(color: palette.accent),
         ),
       ),
     );
@@ -102,6 +106,7 @@ class MenuCategoryChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     const categories = ['All', 'Coffee', 'Tea', 'Pastries', 'Brunch'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -118,13 +123,13 @@ class MenuCategoryChips extends StatelessWidget {
               labelStyle: TextStyle(
                 color: category == selected
                     ? Colors.white
-                    : const Color(0xFF7A625A),
+                    : palette.body,
                 fontSize: 14,
                 height: 20 / 14,
                 fontWeight: FontWeight.w600,
               ),
-              selectedColor: AppColors.accent,
-              backgroundColor: const Color(0xFFFFE9E3),
+              selectedColor: palette.accent,
+              backgroundColor: palette.chipSurface,
               side: BorderSide.none,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(99),
@@ -150,20 +155,21 @@ class MenuProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       constraints: const BoxConstraints(minHeight: 102),
       padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: const Border.fromBorderSide(
-          BorderSide(color: Color(0x4DDCC1B8)),
+        border: Border.fromBorderSide(
+          BorderSide(color: palette.border),
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0A2B1810),
+            color: palette.cardShadow,
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -188,7 +194,8 @@ class MenuProductCard extends StatelessWidget {
                   product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: palette.ink,
                     fontSize: 18,
                     height: 24 / 18,
                     fontWeight: FontWeight.w600,
@@ -199,8 +206,8 @@ class MenuProductCard extends StatelessWidget {
                   product.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF7A625A),
+                  style: TextStyle(
+                    color: palette.body,
                     fontSize: 12,
                     height: 16 / 12,
                   ),
@@ -208,7 +215,8 @@ class MenuProductCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   product.price,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: palette.accentDark,
                     fontSize: 14,
                     height: 20 / 14,
                     fontWeight: FontWeight.bold,
@@ -233,9 +241,9 @@ class MenuProductCard extends StatelessWidget {
               onAdd();
             },
             icon: const Icon(Icons.add, size: 22),
-            color: AppColors.ink,
+            color: palette.ink,
             style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFFFEE2DA),
+              backgroundColor: palette.chipSurface,
               fixedSize: const Size(44, 44),
               padding: EdgeInsets.zero,
             ),
@@ -261,17 +269,19 @@ class CartSummaryBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Container(
       height: 44,
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
       decoration: BoxDecoration(
-        color: AppColors.ink,
+        color: palette.isDark ? const Color(0xFF2B211B) : AppColors.ink,
         borderRadius: BorderRadius.circular(99),
-        boxShadow: const [
+        border: palette.isDark ? Border.all(color: palette.border) : null,
+        boxShadow: [
           BoxShadow(
-            color: Color(0x332B1810),
+            color: palette.cardShadow,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -281,7 +291,7 @@ class CartSummaryBar extends StatelessWidget {
             margin: const EdgeInsets.only(left: 10),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.accent,
+              color: palette.accent,
               borderRadius: BorderRadius.circular(99),
             ),
             child: Row(
@@ -307,10 +317,10 @@ class CartSummaryBar extends StatelessWidget {
           const Spacer(),
           TextButton(
             onPressed: onPressed,
-            child: const Text(
+            child: Text(
               'View Cart  →',
               style: TextStyle(
-                color: Color(0xFFFFC5B2),
+                color: palette.isDark ? palette.accentDark : const Color(0xFFFFC5B2),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),

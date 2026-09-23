@@ -30,7 +30,9 @@ class _OrdersPageState extends State<OrdersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Scaffold(
+      backgroundColor: palette.background,
       extendBody: true,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(64),
@@ -50,9 +52,10 @@ class _OrdersPageState extends State<OrdersPage> {
             children: [
               const Center(child: OfflineBanner()),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'My Orders',
                 style: TextStyle(
+                  color: palette.ink,
                   fontSize: 22,
                   height: 28 / 22,
                   fontWeight: FontWeight.bold,
@@ -80,16 +83,16 @@ class _OrdersPageState extends State<OrdersPage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: palette.surface,
                     borderRadius: BorderRadius.circular(24),
-                    border: const Border.fromBorderSide(
-                      BorderSide(color: AppColors.border),
+                    border: Border.fromBorderSide(
+                      BorderSide(color: palette.border),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Past orders are available offline.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.body, fontSize: 14),
+                    style: TextStyle(color: palette.body, fontSize: 14),
                   ),
                 ),
             ],

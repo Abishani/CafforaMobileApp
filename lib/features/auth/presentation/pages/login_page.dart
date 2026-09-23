@@ -45,8 +45,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: palette.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
@@ -75,10 +76,10 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {},
-                      child: const Text(
+                      child: Text(
                         'Forgot password?',
                         style: TextStyle(
-                          color: AppColors.accentDark,
+                          color: palette.accentDark,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -92,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: FilledButton(
                       onPressed: _submit,
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.accentDark,
+                        backgroundColor: palette.accentDark,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -106,20 +107,20 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Row(
+                  Row(
                     children: [
-                      Expanded(child: Divider(color: AppColors.border)),
+                      Expanded(child: Divider(color: palette.border)),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
                           'or continue with',
                           style: TextStyle(
-                            color: AppColors.muted,
+                            color: palette.muted,
                             fontSize: 12,
                           ),
                         ),
                       ),
-                      Expanded(child: Divider(color: AppColors.border)),
+                      Expanded(child: Divider(color: palette.border)),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -131,10 +132,10 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 12),
                   SocialLoginButton(
                     label: 'Continue with Apple',
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.apple,
                       size: 18,
-                      color: AppColors.ink,
+                      color: palette.ink,
                     ),
                     onPressed: () {},
                   ),
@@ -143,16 +144,16 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: WrapAlignment.center,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         "Don't have an account?",
-                        style: TextStyle(color: AppColors.body, fontSize: 13),
+                        style: TextStyle(color: palette.body, fontSize: 13),
                       ),
                       TextButton(
                         onPressed: () {},
-                        child: const Text(
+                        child: Text(
                           'Create account',
                           style: TextStyle(
-                            color: AppColors.accentDark,
+                            color: palette.accentDark,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -161,11 +162,11 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   const SizedBox(height: 22),
-                  const Text(
+                  Text(
                     'By continuing, you agree to Caffora\'s Terms & Privacy Policy.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppColors.muted,
+                      color: palette.muted,
                       fontSize: 11,
                       height: 16 / 11,
                     ),
