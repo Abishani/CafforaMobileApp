@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/widgets/home_components.dart';
 import '../../data/orders_data.dart';
 import '../widgets/orders_components.dart';
+import '../widgets/pickup_qr_sheet.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -71,11 +72,11 @@ class _OrdersPageState extends State<OrdersPage> {
               if (_showActive)
                 ActiveOrderCard(
                   order: OrdersData.activeOrder,
-                  onQr: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Pickup QR is ready'),
-                      duration: Duration(milliseconds: 900),
-                    ),
+                  onQr: () => showPickupQrSheet(
+                    context,
+                    orderId: OrdersData.activeOrder.orderId,
+                    orderLabel:
+                        'Order #${OrdersData.activeOrder.orderId} • Dine-In',
                   ),
                 )
               else

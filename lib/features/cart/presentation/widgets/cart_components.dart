@@ -4,10 +4,16 @@ import '../../../../core/theme/app_theme.dart';
 import '../../data/cart_data.dart';
 
 class CartTopBar extends StatelessWidget {
-  const CartTopBar({super.key, required this.onBack, required this.onTable});
+  const CartTopBar({
+    super.key,
+    required this.onBack,
+    required this.onTable,
+    required this.tableNumber,
+  });
 
   final VoidCallback onBack;
   final VoidCallback onTable;
+  final String tableNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +58,11 @@ class CartTopBar extends StatelessWidget {
         IconButton(
           onPressed: onTable,
           icon: Icon(
-            Icons.table_restaurant_outlined,
+            Icons.qr_code_scanner,
             size: 18,
             color: palette.body,
           ),
-          tooltip: 'Table 04',
+          tooltip: 'Scan table QR (Table $tableNumber)',
         ),
       ],
     );
@@ -67,10 +73,12 @@ class ServiceModeToggle extends StatelessWidget {
   const ServiceModeToggle({
     super.key,
     required this.isDineIn,
+    required this.tableNumber,
     required this.onChanged,
   });
 
   final bool isDineIn;
+  final String tableNumber;
   final ValueChanged<bool> onChanged;
 
   @override
@@ -91,7 +99,7 @@ class ServiceModeToggle extends StatelessWidget {
         children: [
           Expanded(
             child: _ModeButton(
-              label: 'Dine-in (Table 04)',
+              label: 'Dine-in (Table $tableNumber)',
               icon: Icons.restaurant,
               selected: isDineIn,
               onTap: () => onChanged(true),
@@ -574,9 +582,14 @@ class _TipButton extends StatelessWidget {
 }
 
 class PlaceOrderButton extends StatelessWidget {
-  const PlaceOrderButton({super.key, required this.onPressed});
+  const PlaceOrderButton({
+    super.key,
+    required this.onPressed,
+    this.tableNumber = '04',
+  });
 
   final VoidCallback onPressed;
+  final String tableNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -591,9 +604,9 @@ class PlaceOrderButton extends StatelessWidget {
         elevation: 8,
         shadowColor: palette.accent.withValues(alpha: .25),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Text(
+          const Text(
             'Place Order • \$14.99',
             style: TextStyle(
               fontSize: 18,
@@ -601,10 +614,10 @@ class PlaceOrderButton extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
-            'Table 04 • Ready in ~6–8 minutes',
-            style: TextStyle(
+            'Table $tableNumber • Ready in ~6–8 minutes',
+            style: const TextStyle(
               fontSize: 11,
               height: 14 / 11,
               fontWeight: FontWeight.w500,

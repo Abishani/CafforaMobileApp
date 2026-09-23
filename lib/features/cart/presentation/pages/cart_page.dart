@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/widgets/home_components.dart';
 import '../../data/cart_data.dart';
+import '../pages/table_qr_scan_page.dart';
 import '../widgets/cart_components.dart';
 
 class CartPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _CartPageState extends State<CartPage> {
   final List<int> _quantities = [1, 1];
   bool _isDineIn = true;
   int _tip = 18;
+  String _tableNumber = '04';
 
   void _changeQuantity(int index, int delta) {
     setState(() {
@@ -40,6 +42,20 @@ class _CartPageState extends State<CartPage> {
       Navigator.of(context).pushReplacementNamed('/orders');
     } else if (index == 4) {
       Navigator.of(context).pushReplacementNamed('/profile');
+    }
+  }
+
+  Future<void> _scanTableQr() async {
+    final result = await Navigator.of(context).push<QrScanResult>(
+      MaterialPageRoute(
+        builder: (_) => const TableQrScanPage(mode: QrScanMode.table),
+      ),
+    );
+    if (result is TableScanResult) {
+      setState(() {
+        _tableNumber = result.tableNumber;
+        _isDineIn = true; // auto-switch to Dine-In when table is scanned
+      });
     }
   }
 
@@ -71,11 +87,13 @@ class _CartPageState extends State<CartPage> {
               CartTopBar(
                 onBack: () =>
                     Navigator.of(context).pushReplacementNamed('/menu'),
-                onTable: () {},
+                onTable: _scanTableQr,
+                tableNumber: _tableNumber,
               ),
               const SizedBox(height: 8),
               ServiceModeToggle(
                 isDineIn: _isDineIn,
+                tableNumber: _tableNumber,
                 onChanged: (value) => setState(() => _isDineIn = value),
               ),
               const SizedBox(height: 16),
@@ -95,6 +113,7 @@ class _CartPageState extends State<CartPage> {
               SizedBox(
                 width: double.infinity,
                 child: PlaceOrderButton(
+                  tableNumber: _tableNumber,
                   onPressed: () =>
                       Navigator.of(context).pushReplacementNamed('/orders'),
                 ),

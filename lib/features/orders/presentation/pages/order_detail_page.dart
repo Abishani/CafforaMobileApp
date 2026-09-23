@@ -6,6 +6,8 @@ import '../../../../core/auth/auth_controller.dart';
 import '../../../../core/auth/auth_scope.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/order_repository.dart';
+import '../../../cart/presentation/pages/table_qr_scan_page.dart';
+import '../widgets/pickup_qr_sheet.dart';
 
 class OrderDetailPage extends StatefulWidget {
   const OrderDetailPage({super.key, required this.orderId});
@@ -240,6 +242,102 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       if (mounted) setState(() => _liveStatus = value);
                     }
                   },
+                ),
+                const SizedBox(height: 12),
+                // Admin: scan customer's pickup QR to mark Completed
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      final navigator = Navigator.of(context);
+                      final result = await navigator.push<QrScanResult>(
+                        MaterialPageRoute(
+                          builder: (_) => const TableQrScanPage(
+                            mode: QrScanMode.order,
+                          ),
+                        ),
+                      );
+                      if (result is OrderScanResult && mounted) {
+                        await _repository.updateStatus(
+                            order.id, 'Completed');
+                        if (mounted) {
+                          setState(() => _liveStatus = 'Completed');
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: const Row(
+                                children: [
+                                  Icon(Icons.check_circle_outline,
+                                      color: Colors.white, size: 16),
+                                  SizedBox(width: 8),
+                                  Text('Order marked as Completed'),
+                                ],
+                              ),
+                              backgroundColor: const Color(0xFF4C8A65),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              duration: const Duration(milliseconds: 2000),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: Icon(
+                      Icons.qr_code_scanner,
+                      size: 18,
+                      color: palette.accentDark,
+                    ),
+                    label: Text(
+                      'Scan to Mark Completed',
+                      style: TextStyle(
+                        color: palette.accentDark,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: palette.accentDark),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (!isAdmin) ...[
+                const SizedBox(height: 16),
+                // Customer: show their pickup QR
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => showPickupQrSheet(
+                      context,
+                      orderId: order.id,
+                      orderLabel: 'Order #${order.id}',
+                    ),
+                    icon: Icon(
+                      Icons.qr_code_2,
+                      size: 18,
+                      color: palette.accentDark,
+                    ),
+                    label: Text(
+                      'Show Pickup QR',
+                      style: TextStyle(
+                        color: palette.accentDark,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: palette.border),
+                      backgroundColor: palette.softSurface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ],
