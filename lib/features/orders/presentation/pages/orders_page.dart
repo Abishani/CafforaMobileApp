@@ -69,12 +69,16 @@ class _OrdersPageState extends State<OrdersPage> {
       return Scaffold(
         backgroundColor: palette.background,
         extendBody: true,
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(64),
+          child: HomeHeader(showActionLabel: false),
+        ),
         body: SafeArea(
           bottom: false,
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.page,
-              20,
+              16,
               AppSpacing.page,
               96,
             ),
