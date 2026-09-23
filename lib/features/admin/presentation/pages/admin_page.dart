@@ -138,7 +138,7 @@ class _AdminPageState extends State<AdminPage> {
                 title: 'Recent orders',
                 action: 'View all',
                 onAction: () =>
-                    Navigator.of(context).pushReplacementNamed('/admin'),
+                    Navigator.of(context).pushReplacementNamed('/orders'),
                 child: Column(
                   children: [
                     AdminOrderRow(
