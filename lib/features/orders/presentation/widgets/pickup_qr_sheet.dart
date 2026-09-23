@@ -136,13 +136,13 @@ class _PickupQrSheet extends StatelessWidget {
                   data: _qrData,
                   version: QrVersions.auto,
                   size: 200,
-                  eyeStyle: QrEyeStyle(
+                  eyeStyle: const QrEyeStyle(
                     eyeShape: QrEyeShape.square,
-                    color: palette.ink,
+                    color: Color(0xFF1F1612),
                   ),
-                  dataModuleStyle: QrDataModuleStyle(
+                  dataModuleStyle: const QrDataModuleStyle(
                     dataModuleShape: QrDataModuleShape.square,
-                    color: palette.ink,
+                    color: Color(0xFF1F1612),
                   ),
                 ),
                 const SizedBox(height: 12),
