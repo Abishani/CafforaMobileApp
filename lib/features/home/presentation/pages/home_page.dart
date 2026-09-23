@@ -41,8 +41,6 @@ class _HomePageState extends State<HomePage> {
     if (role == UserRole.guest) {
       if (index == 1) {
         Navigator.of(context).pushReplacementNamed('/menu');
-      } else if (index == 2) {
-        Navigator.of(context).pushReplacementNamed('/appearance');
       }
       return;
     }
@@ -79,10 +77,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final auth = AuthScope.maybeOf(context);
-    final displayName = auth?.isGuest == true
-        ? 'Alex'
-        : (auth?.greetingName.isNotEmpty == true ? auth!.greetingName : 'Alex');
 
     return Scaffold(
       backgroundColor: palette.background,
@@ -103,17 +97,6 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Good morning, $displayName',
-                style: TextStyle(
-                  color: palette.ink,
-                  fontSize: 22,
-                  height: 28 / 22,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -.55,
-                ),
-              ),
-              const SizedBox(height: 16),
               const HomeSearchBar(),
               const SizedBox(height: 24),
               PickupBanner(onOrder: _showOrderMessage),
