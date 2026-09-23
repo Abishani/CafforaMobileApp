@@ -144,6 +144,63 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<String?> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    final trimmedEmail = email.trim();
+    final trimmedName = name.trim();
+
+    if (trimmedName.isEmpty) {
+      return 'Please enter your name.';
+    }
+    if (trimmedEmail.isEmpty || !trimmedEmail.contains('@')) {
+      return 'Please enter a valid email address.';
+    }
+    if (password.length < 6) {
+      return 'Password must be at least 6 characters.';
+    }
+
+    if (_client == null) {
+      _role = trimmedEmail.toLowerCase().contains('admin')
+          ? UserRole.admin
+          : UserRole.registered;
+      _displayName = trimmedName;
+      _email = trimmedEmail;
+      notifyListeners();
+      return null;
+    }
+    _loading = true;
+    notifyListeners();
+    try {
+      final response = await _client.auth.signUp(
+        email: trimmedEmail,
+        password: password,
+        data: {'full_name': trimmedName},
+      );
+      if (response.user == null) return 'Unable to create account.';
+      _email = response.user!.email ?? trimmedEmail;
+      _displayName = trimmedName;
+      _role = UserRole.registered;
+      try {
+        await _client.from('Users').upsert({
+          'id': response.user!.id,
+          'email': trimmedEmail,
+          'name': trimmedName,
+          'role': 'registered',
+        });
+      } catch (_) {}
+      notifyListeners();
+      return null;
+    } on AuthException catch (error) {
+      return error.message;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> signOut() async {
     await _client?.auth.signOut();
     _role = UserRole.guest;
@@ -181,6 +238,9 @@ class AuthController extends ChangeNotifier {
         break;
       case '/login':
         page = const LoginPage();
+        break;
+      case '/register':
+        page = const LoginPage(initialCreateAccount: true);
         break;
       case '/menu':
         page = const MenuPage();

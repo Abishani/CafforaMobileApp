@@ -4,7 +4,14 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class LoginBrand extends StatelessWidget {
-  const LoginBrand({super.key});
+  const LoginBrand({
+    super.key,
+    this.title = 'Welcome back',
+    this.subtitle = 'Sign in to continue your Caffora experience.',
+  });
+
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +37,7 @@ class LoginBrand extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'Welcome back',
+          title,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: palette.ink,
@@ -42,7 +49,7 @@ class LoginBrand extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'Sign in to continue your Caffora experience.',
+          subtitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: palette.body,

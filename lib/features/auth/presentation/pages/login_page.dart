@@ -5,7 +5,9 @@ import '../../../../core/auth/auth_scope.dart';
 import '../widgets/login_components.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.initialCreateAccount = false});
+
+  final bool initialCreateAccount;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,6 +17,13 @@ class _LoginPageState extends State<LoginPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late bool _isCreateAccount;
+
+  @override
+  void initState() {
+    super.initState();
+    _isCreateAccount = widget.initialCreateAccount;
+  }
 
   @override
   void dispose() {
@@ -27,33 +36,60 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     final auth = AuthScope.of(context);
-    var name = _nameController.text.trim();
-    var email = _emailController.text.trim();
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Gracefully handle if email was entered into the first field by an automated test
-    if (email.isEmpty && name.contains('@')) {
-      email = name;
-      name = '';
-    }
-
-    final error = await auth.signIn(
-      name: name.isNotEmpty ? name : null,
-      email: email,
-      password: password,
-    );
-    if (!mounted) return;
-    if (error != null) {
+    if (_isCreateAccount) {
+      final name = _nameController.text.trim();
+      if (name.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter your name'),
+            duration: Duration(milliseconds: 1200),
+          ),
+        );
+        return;
+      }
+      final error = await auth.signUp(
+        name: name,
+        email: email,
+        password: password,
+      );
+      if (!mounted) return;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            duration: const Duration(milliseconds: 1200),
+          ),
+        );
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          duration: const Duration(milliseconds: 1200),
+        const SnackBar(
+          content: Text('Account created successfully!'),
+          duration: Duration(milliseconds: 1200),
         ),
       );
-      return;
+      Navigator.of(context).pushReplacementNamed('/profile');
+    } else {
+      final error = await auth.signIn(
+        email: email,
+        password: password,
+      );
+      if (!mounted) return;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            duration: const Duration(milliseconds: 1200),
+          ),
+        );
+        return;
+      }
+      Navigator.of(context)
+          .pushReplacementNamed(auth.isAdmin ? '/admin' : '/profile');
     }
-    Navigator.of(context)
-        .pushReplacementNamed(auth.isAdmin ? '/admin' : '/profile');
   }
 
   @override
@@ -61,23 +97,46 @@ class _LoginPageState extends State<LoginPage> {
     final palette = context.appColors;
     return Scaffold(
       backgroundColor: palette.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: palette.ink),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              Navigator.of(context).pushReplacementNamed('/');
+            }
+          },
+          tooltip: 'Back',
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 children: [
-                  const LoginBrand(),
-                  const SizedBox(height: 32),
-                  LoginField(
-                    label: 'Name',
-                    hint: 'Enter your name',
-                    icon: Icons.person_outline,
-                    controller: _nameController,
+                  LoginBrand(
+                    title: _isCreateAccount ? 'Create account' : 'Welcome back',
+                    subtitle: _isCreateAccount
+                        ? 'Join Caffora and start ordering today.'
+                        : 'Sign in to continue your Caffora experience.',
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 32),
+                  if (_isCreateAccount) ...[
+                    LoginField(
+                      label: 'Full Name',
+                      hint: 'Enter your name',
+                      icon: Icons.person_outline,
+                      controller: _nameController,
+                    ),
+                    const SizedBox(height: 18),
+                  ],
                   LoginField(
                     label: 'Email address',
                     hint: 'you@example.com',
@@ -87,26 +146,31 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 18),
                   LoginField(
                     label: 'Password',
-                    hint: 'Enter your password',
+                    hint: _isCreateAccount
+                        ? 'Create a password'
+                        : 'Enter your password',
                     icon: Icons.lock_outline,
                     obscureText: true,
                     controller: _passwordController,
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Forgot password?',
-                        style: TextStyle(
-                          color: palette.accentDark,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                  if (!_isCreateAccount) ...[
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          'Forgot password?',
+                          style: TextStyle(
+                            color: palette.accentDark,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 8),
+                  ] else
+                    const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -123,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: const Text('Sign in'),
+                      child: Text(_isCreateAccount ? 'Create account' : 'Sign in'),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -160,18 +224,30 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {},
                   ),
                   const SizedBox(height: 28),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account?",
+                        _isCreateAccount
+                            ? 'Already have an account?'
+                            : "Don't have an account?",
                         style: TextStyle(color: palette.body, fontSize: 13),
                       ),
+                      const SizedBox(width: 4),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            _isCreateAccount = !_isCreateAccount;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 2),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                         child: Text(
-                          'Create account',
+                          _isCreateAccount ? 'Sign in' : 'Create account',
                           style: TextStyle(
                             color: palette.accentDark,
                             fontSize: 13,
