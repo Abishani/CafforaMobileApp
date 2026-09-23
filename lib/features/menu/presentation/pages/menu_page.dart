@@ -36,6 +36,17 @@ class _MenuPageState extends State<MenuPage> {
       }
       return;
     }
+    if (role == UserRole.admin) {
+      switch (index) {
+        case 0:
+          Navigator.of(context).pushReplacementNamed('/');
+        case 2:
+          Navigator.of(context).pushReplacementNamed('/orders');
+        case 3:
+          Navigator.of(context).pushReplacementNamed('/profile');
+      }
+      return;
+    }
     if (index == 0) {
       Navigator.of(context).pushReplacementNamed('/');
     } else if (index == 2) {
@@ -51,7 +62,6 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     final palette = context.appColors;
     final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
-    final isGuest = role == UserRole.guest;
 
     return Scaffold(
       backgroundColor: palette.background,
@@ -105,7 +115,7 @@ class _MenuPageState extends State<MenuPage> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!isGuest) ...[
+          if (role == UserRole.registered) ...[
             CartSummaryBar(
               itemCount: _cartCount,
               total: '\$11.45',
