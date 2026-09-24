@@ -17,22 +17,25 @@ class OrderDetailPage extends StatefulWidget {
 }
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
-  late Future<OrderDetails> _details;
+  Future<OrderDetails>? _details;
+  bool _initialized = false;
   StreamSubscription<String>? _statusSubscription;
   String? _liveStatus;
   OrderRepository get _repository {
     final auth = AuthScope.maybeOf(context);
     return OrderRepository(
-      client: auth?.client,
       role: auth?.role ?? UserRole.registered,
       userId: auth?.userId,
     );
   }
 
   @override
-  void initState() {
-    super.initState();
-    _details = _load();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _details = _load();
+    }
   }
 
   Future<OrderDetails> _load() async {

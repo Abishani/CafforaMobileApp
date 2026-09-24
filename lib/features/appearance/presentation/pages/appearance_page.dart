@@ -62,9 +62,7 @@ class AppearancePage extends StatelessWidget {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
                       } else {
-                        Navigator.of(context).pushReplacementNamed(
-                          isGuest ? '/' : '/profile',
-                        );
+                        Navigator.of(context).pushReplacementNamed('/profile');
                       }
                     },
                     icon: Icon(Icons.chevron_left, size: 24, color: palette.ink),
@@ -74,7 +72,7 @@ class AppearancePage extends StatelessWidget {
                       side: BorderSide(color: palette.border),
                       padding: EdgeInsets.zero,
                     ),
-                    tooltip: isGuest ? 'Back to Home' : 'Back to Profile',
+                    tooltip: 'Back to Profile',
                   ),
                   const Spacer(),
                   Text(
@@ -220,7 +218,7 @@ class AppearancePage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: HomeBottomNavigation(
-        selectedIndex: isGuest ? 2 : 4,
+        selectedIndex: -1,
         onSelected: (index) => _selectNavigation(context, index),
         cartCount: isGuest ? 0 : 2,
       ),

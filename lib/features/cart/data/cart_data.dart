@@ -1,32 +1,7 @@
-import '../../../core/constants/app_assets.dart';
+import 'cart_controller.dart';
 
-class CartItem {
-  const CartItem({
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.image,
-  });
-
-  final String name;
-  final String description;
-  final double price;
-  final String image;
-}
+export 'cart_controller.dart' show CartItem, CartController;
 
 abstract final class CartData {
-  static const items = [
-    CartItem(
-      name: 'Artisan Flat White',
-      description: 'Oat milk, Extra single shot',
-      price: 6.35,
-      image: AppAssets.cartArtisanFlatWhite,
-    ),
-    CartItem(
-      name: 'Wild Berry Brioche Toast',
-      description: 'Warm, Mascarpone on side',
-      price: 7.50,
-      image: AppAssets.cartWildBerryToast,
-    ),
-  ];
+  static List<CartItem> get items => CartController.instance.items;
 }

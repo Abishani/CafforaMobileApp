@@ -23,6 +23,7 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
   void initState() {
     super.initState();
     CafeOrdersData.ordersNotifier.addListener(_onOrdersChanged);
+    CafeOrdersData.loadOrdersQueue();
   }
 
   @override

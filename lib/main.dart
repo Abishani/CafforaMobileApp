@@ -15,7 +15,7 @@ Future<void> main() async {
   ));
 }
 
-class CafforaApp extends StatelessWidget {
+class CafforaApp extends StatefulWidget {
   const CafforaApp({
     super.key,
     this.authController,
@@ -26,24 +26,47 @@ class CafforaApp extends StatelessWidget {
   final ThemeController? themeController;
 
   @override
-  Widget build(BuildContext context) {
-    final auth = authController ?? AuthController.registered();
-    final theme = themeController ?? ThemeController();
+  State<CafforaApp> createState() => _CafforaAppState();
+}
 
+class _CafforaAppState extends State<CafforaApp> {
+  late AuthController _auth;
+  late ThemeController _theme;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = widget.authController ?? AuthController.registered();
+    _theme = widget.themeController ?? ThemeController();
+  }
+
+  @override
+  void didUpdateWidget(covariant CafforaApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.authController != null && widget.authController != _auth) {
+      _auth = widget.authController!;
+    }
+    if (widget.themeController != null && widget.themeController != _theme) {
+      _theme = widget.themeController!;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AuthScope(
-      controller: auth,
+      controller: _auth,
       child: ThemeScope(
-        controller: theme,
+        controller: _theme,
         child: ListenableBuilder(
-          listenable: theme,
+          listenable: _theme,
           builder: (context, _) {
             return MaterialApp(
               title: 'Caffora',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light,
               darkTheme: AppTheme.dark,
-              themeMode: theme.themeMode,
-              onGenerateRoute: auth.routeGuard,
+              themeMode: _theme.themeMode,
+              onGenerateRoute: _auth.routeGuard,
               initialRoute: '/',
             );
           },

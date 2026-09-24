@@ -73,6 +73,24 @@ class _LoginPageState extends State<LoginPage> {
       );
       Navigator.of(context).pushReplacementNamed('/profile');
     } else {
+      if (email.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter your email address'),
+            duration: Duration(milliseconds: 1200),
+          ),
+        );
+        return;
+      }
+      if (password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter your password'),
+            duration: Duration(milliseconds: 1200),
+          ),
+        );
+        return;
+      }
       final error = await auth.signIn(
         email: email,
         password: password,
@@ -115,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 16),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
@@ -127,15 +145,15 @@ class _LoginPageState extends State<LoginPage> {
                         ? 'Join Caffora and start ordering today.'
                         : 'Sign in to continue your Caffora experience.',
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 14),
                   if (_isCreateAccount) ...[
                     LoginField(
-                      label: 'Full Name',
+                      label: 'Name',
                       hint: 'Enter your name',
                       icon: Icons.person_outline,
                       controller: _nameController,
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 10),
                   ],
                   LoginField(
                     label: 'Email address',
@@ -143,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                     icon: Icons.email_outlined,
                     controller: _emailController,
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 10),
                   LoginField(
                     label: 'Password',
                     hint: _isCreateAccount
@@ -168,12 +186,12 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                   ] else
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 46,
                     child: FilledButton(
                       onPressed: _submit,
                       style: FilledButton.styleFrom(
@@ -190,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(_isCreateAccount ? 'Create account' : 'Sign in'),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(child: Divider(color: palette.border)),
@@ -207,13 +225,13 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(child: Divider(color: palette.border)),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 10),
                   SocialLoginButton(
                     label: 'Continue with Google',
                     icon: const GoogleIcon(),
                     onPressed: () {},
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   SocialLoginButton(
                     label: 'Continue with Apple',
                     icon: Icon(
@@ -223,17 +241,17 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     onPressed: () {},
                   ),
-                  const SizedBox(height: 28),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  const SizedBox(height: 12),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
                         _isCreateAccount
-                            ? 'Already have an account?'
-                            : "Don't have an account?",
+                            ? 'Already have an account? '
+                            : "Don't have an account? ",
                         style: TextStyle(color: palette.body, fontSize: 13),
                       ),
-                      const SizedBox(width: 4),
                       TextButton(
                         onPressed: () {
                           setState(() {
@@ -257,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 10),
                   Text(
                     'By continuing, you agree to Caffora\'s Terms & Privacy Policy.',
                     textAlign: TextAlign.center,

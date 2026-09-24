@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_controller.dart';
 import '../../../../core/auth/auth_scope.dart';
+import '../../../cart/data/cart_controller.dart';
+import '../../../menu/data/menu_data.dart';
 import '../../data/home_data.dart';
 import '../widgets/home_components.dart';
 
@@ -15,10 +17,44 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedNavigationIndex = 0;
-  int _cartCount = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    CartController.instance.addListener(_onCartChanged);
+  }
+
+  @override
+  void dispose() {
+    CartController.instance.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _addToCart(HomeProduct product) {
-    setState(() => _cartCount++);
+    final auth = AuthScope.maybeOf(context);
+    if (auth?.isGuest ?? true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please sign in to add items to your cart.'),
+          duration: Duration(milliseconds: 1500),
+        ),
+      );
+      Navigator.of(context).pushNamed('/login');
+      return;
+    }
+
+    CartController.instance.addItem(MenuProduct(
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      category: 'Coffee',
+    ));
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.name} added to cart'),
@@ -99,6 +135,17 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                'Good morning, Alex',
+                style: TextStyle(
+                  color: palette.ink,
+                  fontSize: 22,
+                  height: 28 / 22,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.55,
+                ),
+              ),
+              const SizedBox(height: 16),
               const HomeSearchBar(),
               const SizedBox(height: 24),
               if (!isGuest) ...[
@@ -125,7 +172,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: HomeBottomNavigation(
         selectedIndex: _selectedNavigationIndex,
         onSelected: _selectNavigation,
-        cartCount: _cartCount,
+        cartCount: CartController.instance.itemCount,
       ),
     );
   }

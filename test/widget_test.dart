@@ -7,11 +7,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:caffora_mobile_app/main.dart';
 import 'package:caffora_mobile_app/core/auth/auth_controller.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('renders the Caffora home screen', (WidgetTester tester) async {
     await tester.pumpWidget(const CafforaApp());
 

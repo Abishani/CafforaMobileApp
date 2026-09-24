@@ -68,12 +68,21 @@ class MenuTitleRow extends StatelessWidget {
 }
 
 class MenuSearchField extends StatelessWidget {
-  const MenuSearchField({super.key});
+  const MenuSearchField({
+    super.key,
+    this.controller,
+    this.onChanged,
+  });
+
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
     return TextField(
+      controller: controller,
+      onChanged: onChanged,
       style: TextStyle(color: palette.ink, fontSize: 14),
       decoration: InputDecoration(
         hintText: 'Search coffee, tea, pastries...',
@@ -104,15 +113,16 @@ class MenuCategoryChips extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onSelected,
+    this.categories = const ['All', 'Beverages', 'Snacks', 'Meals', 'Desserts'],
   });
 
   final String selected;
   final ValueChanged<String> onSelected;
+  final List<String> categories;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    const categories = ['All', 'Coffee', 'Tea', 'Pastries', 'Brunch'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       clipBehavior: Clip.none,
@@ -121,7 +131,7 @@ class MenuCategoryChips extends StatelessWidget {
           for (final category in categories) ...[
             ChoiceChip(
               label: Text(category),
-              selected: category == selected,
+              selected: category.toLowerCase() == selected.toLowerCase(),
               onSelected: (_) => onSelected(category),
               showCheckmark: false,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -182,12 +192,7 @@ class MenuProductCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              product.image,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
+            child: _buildProductImage(product.image, palette),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -248,13 +253,55 @@ class MenuProductCard extends StatelessWidget {
             icon: const Icon(Icons.add, size: 22),
             color: palette.ink,
             style: IconButton.styleFrom(
-              backgroundColor: palette.chipSurface,
+              backgroundColor: AppColors.chipSurface,
               fixedSize: const Size(44, 44),
-              padding: EdgeInsets.zero,
             ),
             tooltip: 'Add ${product.name} to cart',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildProductImage(String image, AppPalette palette) {
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return Image.network(
+        image,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: 80,
+          height: 80,
+          color: AppColors.chipSurface,
+          alignment: Alignment.center,
+          child: const Text('☕', style: TextStyle(fontSize: 32)),
+        ),
+      );
+    }
+    if (image.startsWith('assets/')) {
+      return Image.asset(
+        image,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: 80,
+          height: 80,
+          color: AppColors.chipSurface,
+          alignment: Alignment.center,
+          child: const Text('☕', style: TextStyle(fontSize: 32)),
+        ),
+      );
+    }
+    return Container(
+      width: 80,
+      height: 80,
+      color: AppColors.chipSurface,
+      alignment: Alignment.center,
+      child: Text(
+        image.isNotEmpty ? image : '☕',
+        style: const TextStyle(fontSize: 34),
       ),
     );
   }

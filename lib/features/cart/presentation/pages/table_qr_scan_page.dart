@@ -23,8 +23,9 @@ enum QrScanMode { table, order }
 sealed class QrScanResult {}
 
 class TableScanResult extends QrScanResult {
-  TableScanResult(this.tableNumber);
+  TableScanResult(this.tableNumber, {this.rawCode});
   final String tableNumber;
+  final String? rawCode;
 }
 
 class OrderScanResult extends QrScanResult {
@@ -51,15 +52,22 @@ class _TableQrScanPageState extends State<TableQrScanPage> {
 
     QrScanResult? result;
 
-    if (widget.mode == QrScanMode.table &&
-        raw.startsWith('CAFFORA_TABLE:')) {
-      final tableNum = raw.replaceFirst('CAFFORA_TABLE:', '').trim();
-      if (tableNum.isNotEmpty) {
-        result = TableScanResult(tableNum);
+    if (widget.mode == QrScanMode.table) {
+      if (raw.startsWith('cafe://table/')) {
+        final tableNum = raw.replaceFirst('cafe://table/', '').trim();
+        if (tableNum.isNotEmpty) {
+          result = TableScanResult(tableNum, rawCode: raw);
+        }
+      } else if (raw.startsWith('CAFFORA_TABLE:')) {
+        final tableNum = raw.replaceFirst('CAFFORA_TABLE:', '').trim();
+        if (tableNum.isNotEmpty) {
+          result = TableScanResult(tableNum, rawCode: raw);
+        }
+      } else if (raw.toUpperCase().startsWith('T-') || RegExp(r'^\d+$').hasMatch(raw)) {
+        result = TableScanResult(raw, rawCode: 'cafe://table/$raw');
       }
     } else if (widget.mode == QrScanMode.order &&
         raw.startsWith('CAFFORA_ORDER:')) {
-      // Payload: CAFFORA_ORDER:<orderId>:VERIFY
       final parts = raw.split(':');
       if (parts.length >= 3) {
         result = OrderScanResult(parts[1]);
@@ -150,12 +158,36 @@ class _TableQrScanPageState extends State<TableQrScanPage> {
                     ),
                   ),
                 ),
+                if (isTable) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final table in ['T-01', 'T-02', 'T-03'])
+                        ActionChip(
+                          backgroundColor: Colors.white.withValues(alpha: 0.15),
+                          side: BorderSide(color: palette.accent),
+                          label: Text(
+                            table,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            _scanned = true;
+                            _controller.stop();
+                            Navigator.of(context).pop(
+                              TableScanResult(table, rawCode: 'cafe://table/$table'),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
 
           // ── Frosted overlay around the scan window ────
-          _ScanOverlay(frameSize: 240),
+          IgnorePointer(child: _ScanOverlay(frameSize: 240)),
         ],
       ),
     );

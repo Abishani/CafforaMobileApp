@@ -385,15 +385,31 @@ class OrderSummaryCard extends StatelessWidget {
     super.key,
     required this.tip,
     required this.onTipChanged,
+    this.subtotal,
+    this.discount,
+    this.tax,
+    this.total,
   });
 
   final int tip;
   final ValueChanged<int> onTipChanged;
+  final double? subtotal;
+  final double? discount;
+  final double? tax;
+  final double? total;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final gratuity = tip == 18 ? '\$2.13 (18%)' : '+\$0.00';
+    final subVal = subtotal ?? 13.85;
+    final discVal = discount ?? 0.0;
+    final taxVal = tax ?? (subVal * 0.05);
+    final tipVal = subVal * (tip / 100.0);
+    final totalVal = total ?? (subVal - discVal + taxVal + tipVal);
+    final gratuity = tip > 0
+        ? '\$${tipVal.toStringAsFixed(2)} ($tip%)'
+        : '+\$0.00';
+
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
@@ -407,15 +423,17 @@ class OrderSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SummaryRow(label: 'Subtotal', value: '\$13.85'),
+          _SummaryRow(label: 'Subtotal', value: '\$${subVal.toStringAsFixed(2)}'),
+          if (discVal > 0) ...[
+            const SizedBox(height: 8),
+            _SummaryRow(
+              label: '🏷 DISCOUNT',
+              value: '-\$${discVal.toStringAsFixed(2)}',
+              accent: true,
+            ),
+          ],
           const SizedBox(height: 8),
-          const _SummaryRow(
-            label: '🏷 PASTRYBEANS',
-            value: '-\$2.00',
-            accent: true,
-          ),
-          const SizedBox(height: 8),
-          const _SummaryRow(label: 'Estimated Tax', value: '\$1.01'),
+          _SummaryRow(label: 'Estimated Tax', value: '\$${taxVal.toStringAsFixed(2)}'),
           const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -487,7 +505,7 @@ class OrderSummaryCard extends StatelessWidget {
                 ],
               ),
               Text(
-                '\$14.99',
+                '\$${totalVal.toStringAsFixed(2)}',
                 style: TextStyle(
                   color: palette.accentDark,
                   fontSize: 28,
@@ -586,16 +604,30 @@ class PlaceOrderButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.tableNumber = '04',
+    this.total,
+    this.isLoading = false,
+    this.isDineIn = true,
   });
 
   final VoidCallback onPressed;
   final String tableNumber;
+  final double? total;
+  final bool isLoading;
+  final bool isDineIn;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
+    final totalText = total != null
+        ? '\$${total!.toStringAsFixed(2)}'
+        : '\$14.99';
+
+    final subtitle = isDineIn
+        ? 'Table $tableNumber • Ready in ~6–8 minutes'
+        : 'Counter Pickup • Ready in ~6–8 minutes';
+
     return FilledButton(
-      onPressed: onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: FilledButton.styleFrom(
         backgroundColor: palette.accentDark,
         foregroundColor: Colors.white,
@@ -604,27 +636,36 @@ class PlaceOrderButton extends StatelessWidget {
         elevation: 8,
         shadowColor: palette.accent.withValues(alpha: .25),
       ),
-      child: Column(
-        children: [
-          const Text(
-            'Place Order • \$14.99',
-            style: TextStyle(
-              fontSize: 18,
-              height: 24 / 18,
-              fontWeight: FontWeight.w600,
+      child: isLoading
+          ? const SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: Colors.white,
+              ),
+            )
+          : Column(
+              children: [
+                Text(
+                  'Place Order • $totalText',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    height: 24 / 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    height: 14 / 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Table $tableNumber • Ready in ~6–8 minutes',
-            style: const TextStyle(
-              fontSize: 11,
-              height: 14 / 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

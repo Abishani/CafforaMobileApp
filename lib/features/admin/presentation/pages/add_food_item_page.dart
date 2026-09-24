@@ -39,21 +39,32 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
-    await Future.delayed(const Duration(milliseconds: 300));
 
     final rawPrice = double.tryParse(_priceCtrl.text.trim()) ?? 0.0;
-    final formattedPrice = '\$${rawPrice.toStringAsFixed(2)}';
 
-    final newItem = MenuProduct(
+    // Resolve category ID for backend
+    int categoryId = 1;
+    final catLower = _selectedCategory.toLowerCase();
+    for (final c in MenuData.categories) {
+      final nameLower = c.name.toLowerCase();
+      if (nameLower == catLower ||
+          (catLower == 'coffee' && nameLower.contains('beverage')) ||
+          (catLower == 'tea' && nameLower.contains('beverage')) ||
+          (catLower == 'pastries' && nameLower.contains('snack')) ||
+          (catLower == 'brunch' && nameLower.contains('meal'))) {
+        categoryId = c.id;
+        break;
+      }
+    }
+
+    final newItem = await MenuData.createProduct(
       name: _nameCtrl.text.trim(),
       description: _descCtrl.text.trim(),
-      price: formattedPrice,
-      image: _selectedEmoji,
-      category: _selectedCategory,
-      isCustom: true,
+      price: rawPrice,
+      categoryId: categoryId,
+      categoryName: _selectedCategory,
+      imageUrl: _selectedEmoji,
     );
-
-    MenuData.addProduct(newItem);
 
     if (mounted) {
       setState(() => _isSaving = false);

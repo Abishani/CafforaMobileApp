@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/auth/auth_scope.dart';
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/widgets/home_components.dart';
-import '../../data/cart_data.dart';
+import '../../data/cart_controller.dart';
 import '../pages/table_qr_scan_page.dart';
 import '../widgets/cart_components.dart';
 
@@ -14,23 +16,22 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  final List<CartItem> _items = List<CartItem>.of(CartData.items);
-  final List<int> _quantities = [1, 1];
-  bool _isDineIn = true;
-  int _tip = 18;
-  String _tableNumber = '04';
+  final CartController _cart = CartController.instance;
 
-  void _changeQuantity(int index, int delta) {
-    setState(() {
-      _quantities[index] = (_quantities[index] + delta).clamp(1, 9);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _cart.addListener(_onCartChanged);
   }
 
-  void _removeItem(int index) {
-    setState(() {
-      _items.removeAt(index);
-      _quantities.removeAt(index);
-    });
+  @override
+  void dispose() {
+    _cart.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() {
+    if (mounted) setState(() {});
   }
 
   void _selectNavigation(int index) {
@@ -52,20 +53,63 @@ class _CartPageState extends State<CartPage> {
       ),
     );
     if (result is TableScanResult) {
-      setState(() {
-        _tableNumber = result.tableNumber;
-        _isDineIn = true; // auto-switch to Dine-In when table is scanned
-      });
+      final codeToResolve = result.rawCode ?? result.tableNumber;
+      await _cart.resolveTableFromCode(codeToResolve);
+      _cart.setTable(_cart.tableId, result.tableNumber);
+    }
+  }
+
+  Future<void> _handlePlaceOrder() async {
+    final auth = AuthScope.maybeOf(context);
+    if (auth?.isGuest ?? true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to place an order.'),
+          duration: Duration(milliseconds: 1500),
+        ),
+      );
+      Navigator.of(context).pushNamed('/login');
+      return;
+    }
+
+    try {
+      final order = await _cart.placeOrder();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order #${order.orderNumber} placed successfully!'),
+          backgroundColor: AppColors.accentDark,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      Navigator.of(context).pushReplacementNamed('/orders');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red.shade700,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to place order. Check network connection.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
-    final itemCount = _quantities.fold<int>(
-      0,
-      (sum, quantity) => sum + quantity,
-    );
+    final items = _cart.items;
+    final quantities = items.map((i) => i.quantity).toList();
+    final itemCount = _cart.itemCount;
+
     return Scaffold(
       backgroundColor: palette.background,
       extendBody: true,
@@ -88,36 +132,83 @@ class _CartPageState extends State<CartPage> {
                 onBack: () =>
                     Navigator.of(context).pushReplacementNamed('/menu'),
                 onTable: _scanTableQr,
-                tableNumber: _tableNumber,
+                tableNumber: _cart.tableNumber,
               ),
               const SizedBox(height: 8),
               ServiceModeToggle(
-                isDineIn: _isDineIn,
-                tableNumber: _tableNumber,
-                onChanged: (value) => setState(() => _isDineIn = value),
+                isDineIn: _cart.isDineIn,
+                tableNumber: _cart.tableNumber,
+                onChanged: (value) => _cart.setDineIn(value),
               ),
               const SizedBox(height: 16),
-              CartItemsCard(
-                items: _items,
-                quantities: _quantities,
-                onDecrease: (index) => _changeQuantity(index, -1),
-                onIncrease: (index) => _changeQuantity(index, 1),
-                onRemove: _removeItem,
-              ),
-              const SizedBox(height: 16),
-              OrderSummaryCard(
-                tip: _tip,
-                onTipChanged: (value) => setState(() => _tip = value),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: PlaceOrderButton(
-                  tableNumber: _tableNumber,
-                  onPressed: () =>
-                      Navigator.of(context).pushReplacementNamed('/orders'),
+              if (items.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: palette.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: palette.border),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(Icons.shopping_bag_outlined, size: 54, color: palette.muted),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Your bag is empty',
+                        style: TextStyle(
+                          color: palette.ink,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Explore our handcrafted coffee and fresh pastries.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: palette.body, fontSize: 13),
+                      ),
+                      const SizedBox(height: 20),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pushReplacementNamed('/menu'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: palette.accentDark,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: const Text('Browse Menu'),
+                      ),
+                    ],
+                  ),
+                )
+              else ...[
+                CartItemsCard(
+                  items: items,
+                  quantities: quantities,
+                  onDecrease: (index) => _cart.changeQuantity(index, -1),
+                  onIncrease: (index) => _cart.changeQuantity(index, 1),
+                  onRemove: (index) => _cart.removeItem(index),
                 ),
-              ),
+                const SizedBox(height: 16),
+                OrderSummaryCard(
+                  tip: _cart.tipPercentage,
+                  subtotal: _cart.subtotal,
+                  tax: _cart.tax,
+                  total: _cart.total,
+                  onTipChanged: (value) => _cart.setTipPercentage(value),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: PlaceOrderButton(
+                    tableNumber: _cart.tableNumber,
+                    total: _cart.total,
+                    isLoading: _cart.isSubmitting,
+                    isDineIn: _cart.isDineIn,
+                    onPressed: _handlePlaceOrder,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
