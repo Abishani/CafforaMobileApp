@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_scope.dart';
 import '../../../home/presentation/widgets/home_components.dart';
+import '../../data/contact_invite_service.dart';
 import '../widgets/profile_components.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  Future<void> _handleInviteFriend(BuildContext context) async {
+    await ContactInviteService.instance.openInviteHub(context);
+  }
 
   void _selectNavigation(BuildContext context, int index) {
     final auth = AuthScope.of(context);
@@ -71,15 +76,18 @@ class ProfilePage extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.page,
+          padding: EdgeInsets.fromLTRB(
+            MediaQuery.of(context).size.width > 600 ? 36.0 : AppSpacing.page,
             16,
-            AppSpacing.page,
+            MediaQuery.of(context).size.width > 600 ? 36.0 : AppSpacing.page,
             136,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               Text(
                 'Profile',
                 style: TextStyle(
@@ -152,6 +160,13 @@ class ProfilePage extends StatelessWidget {
                       icon: Icons.favorite_border,
                       title: 'Favorites',
                       subtitle: 'Your saved drinks and treats',
+                    ),
+                    const ProfileDivider(),
+                    ProfileActionTile(
+                      icon: Icons.person_add_outlined,
+                      title: 'Invite a friend',
+                      subtitle: 'Earn discounts by inviting friends to Caffora',
+                      onTap: () => _handleInviteFriend(context),
                     ),
                   ],
                 ],
@@ -233,11 +248,14 @@ class ProfilePage extends StatelessWidget {
                     ),
                 ],
               ),
+              const SizedBox(height: 48),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: HomeBottomNavigation(
+    ),
+  ),
+  bottomNavigationBar: HomeBottomNavigation(
         selectedIndex: isGuest ? -1 : (isAdmin ? 3 : 4),
         onSelected: (index) => _selectNavigation(context, index),
         cartCount: isGuest ? 0 : 2,

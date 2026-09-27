@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'core/network/api_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'core/auth/auth_controller.dart';
@@ -7,6 +8,7 @@ import 'core/auth/auth_scope.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ApiConfig.init();
   final auth = await AuthController.create();
   final themeController = ThemeController();
   runApp(CafforaApp(

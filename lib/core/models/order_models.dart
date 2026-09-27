@@ -21,16 +21,19 @@ class PlaceOrderRequest {
     required this.items,
     this.pickupType = 'COUNTER', // "COUNTER" or "TABLE"
     this.tableId,
+    this.paymentMethod = 'CASH', // "CASH", "CARD", "MOBILE_WALLET"
   });
 
   final List<OrderLineRequest> items;
   final String pickupType;
   final int? tableId;
+  final String? paymentMethod;
 
   Map<String, dynamic> toJson() => {
         'items': items.map((e) => e.toJson()).toList(),
         'pickupType': pickupType,
         if (tableId != null) 'tableId': tableId,
+        if (paymentMethod != null) 'paymentMethod': paymentMethod,
       };
 }
 
@@ -72,6 +75,8 @@ class OrderResponse {
     required this.orderNumber,
     required this.status, // PENDING, PREPARING, READY, COMPLETED, CANCELLED
     required this.pickupType, // COUNTER, TABLE
+    this.paymentMethod, // CASH, CARD, MOBILE_WALLET
+    this.paymentStatus, // PENDING, PAID, FAILED
     required this.subtotal,
     required this.pickupFee,
     required this.tax,
@@ -89,6 +94,8 @@ class OrderResponse {
   final String orderNumber;
   final String status;
   final String pickupType;
+  final String? paymentMethod;
+  final String? paymentStatus;
   final double subtotal;
   final double pickupFee;
   final double tax;
@@ -102,6 +109,31 @@ class OrderResponse {
   final String? tableNumber;
 
   int get totalItemCount => items.fold(0, (sum, item) => sum + item.quantity);
+
+  String get displayPaymentMethod {
+    switch (paymentMethod?.toUpperCase()) {
+      case 'CARD':
+        return 'Card';
+      case 'MOBILE_WALLET':
+        return 'Mobile Wallet';
+      case 'CASH':
+      default:
+        return 'Cash at Counter';
+    }
+  }
+
+  String get displayPaymentStatus {
+    switch (paymentStatus?.toUpperCase()) {
+      case 'PAID':
+        return 'Paid';
+      case 'PENDING':
+        return 'Pending Payment';
+      case 'FAILED':
+        return 'Payment Failed';
+      default:
+        return paymentStatus ?? 'Pending';
+    }
+  }
 
   String get displayStatus {
     switch (status.toUpperCase()) {
@@ -136,6 +168,8 @@ class OrderResponse {
       orderNumber: json['orderNumber'] as String? ?? '',
       status: json['status'] as String? ?? 'PENDING',
       pickupType: json['pickupType'] as String? ?? 'COUNTER',
+      paymentMethod: json['paymentMethod'] as String?,
+      paymentStatus: json['paymentStatus'] as String?,
       subtotal: (json['subtotal'] as num?)?.toDouble() ?? 0.0,
       pickupFee: (json['pickupFee'] as num?)?.toDouble() ?? 0.0,
       tax: (json['tax'] as num?)?.toDouble() ?? 0.0,

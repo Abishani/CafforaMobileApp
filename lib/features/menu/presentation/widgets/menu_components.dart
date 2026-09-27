@@ -6,7 +6,9 @@ import '../../../../core/auth/auth_scope.dart';
 import '../../data/menu_data.dart';
 
 class MenuTitleRow extends StatelessWidget {
-  const MenuTitleRow({super.key});
+  const MenuTitleRow({super.key, this.onAddItem});
+
+  final VoidCallback? onAddItem;
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +21,33 @@ class MenuTitleRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'Menu',
+          role == UserRole.admin ? 'Manage Menu' : 'Menu',
           style: TextStyle(
             color: palette.ink,
-            fontSize: 32,
-            height: 40 / 32,
+            fontSize: 30,
+            height: 38 / 30,
             fontWeight: FontWeight.bold,
             letterSpacing: -.8,
           ),
         ),
-        if (!isGuest)
+        if (role == UserRole.admin)
+          FilledButton.icon(
+            onPressed: onAddItem,
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text(
+              'Add Item',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: palette.accentDark,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          )
+        else if (!isGuest)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 7),
             decoration: BoxDecoration(

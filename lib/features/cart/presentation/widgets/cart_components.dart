@@ -669,3 +669,134 @@ class PlaceOrderButton extends StatelessWidget {
     );
   }
 }
+
+class PaymentMethodSelectorCard extends StatelessWidget {
+  const PaymentMethodSelectorCard({
+    super.key,
+    required this.selectedMethod,
+    required this.onChanged,
+  });
+
+  final String selectedMethod;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.appColors;
+
+    final options = [
+      (
+        key: 'CASH',
+        title: 'Cash at Counter',
+        subtitle: 'Pay at pickup counter',
+        icon: Icons.payments_outlined,
+      ),
+      (
+        key: 'CARD',
+        title: 'Credit / Debit Card',
+        subtitle: 'Pay via card on file / terminal',
+        icon: Icons.credit_card_outlined,
+      ),
+      (
+        key: 'MOBILE_WALLET',
+        title: 'Mobile Wallet',
+        subtitle: 'Apple Pay / Google Pay',
+        icon: Icons.account_balance_wallet_outlined,
+      ),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: palette.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.payment, size: 18, color: palette.accentDark),
+              const SizedBox(width: 8),
+              Text(
+                'Payment Method at Pickup',
+                style: TextStyle(
+                  color: palette.ink,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (final opt in options) ...[
+            InkWell(
+              onTap: () => onChanged(opt.key),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: selectedMethod == opt.key
+                      ? palette.accentDark.withValues(alpha: 0.08)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: selectedMethod == opt.key
+                        ? palette.accentDark
+                        : palette.border,
+                    width: selectedMethod == opt.key ? 1.5 : 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      opt.icon,
+                      size: 22,
+                      color: selectedMethod == opt.key
+                          ? palette.accentDark
+                          : palette.muted,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            opt.title,
+                            style: TextStyle(
+                              color: palette.ink,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            opt.subtitle,
+                            style: TextStyle(
+                              color: palette.muted,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      selectedMethod == opt.key
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      size: 20,
+                      color: selectedMethod == opt.key
+                          ? palette.accentDark
+                          : palette.muted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

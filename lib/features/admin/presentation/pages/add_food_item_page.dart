@@ -17,14 +17,99 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
   final _descCtrl = TextEditingController();
   final _priceCtrl = TextEditingController();
 
-  String _selectedCategory = 'Coffee';
+  String _selectedCategory = 'Beverages';
   String _selectedEmoji = '☕';
   bool _isSaving = false;
 
-  static const _categories = ['Coffee', 'Tea', 'Pastries', 'Brunch'];
+  /// The 4 standard database category types
+  static const _categories = ['Beverages', 'Snacks', 'Meals', 'Desserts'];
 
   static const _emojiOptions = [
     '☕', '🍵', '🧋', '🥐', '🥯', '🥪', '🍰', '🍪', '🧇', '🥞',
+  ];
+
+  /// Standard database catalog presets used for fast lookup & auto-completion
+  static final List<MenuProduct> _catalogDatabaseTemplates = [
+    const MenuProduct(
+      id: 101,
+      name: 'Craft Flat White',
+      description: 'Double shot of single-origin espresso with silky textured milk.',
+      price: '4.50',
+      rawPrice: 4.50,
+      calories: 280,
+      category: 'Beverages',
+      image: '☕',
+    ),
+    const MenuProduct(
+      id: 102,
+      name: 'Iced Honey Oat Latte',
+      description: 'Organic oat milk combined with raw local honey and blonde roast cold brew.',
+      price: '5.25',
+      rawPrice: 5.25,
+      calories: 340,
+      category: 'Beverages',
+      image: '🧋',
+    ),
+    const MenuProduct(
+      id: 103,
+      name: 'Cinnamon Swirl Bun',
+      description: 'Freshly baked sourdough bun with Ceylon cinnamon and brown sugar glaze.',
+      price: '3.75',
+      rawPrice: 3.75,
+      calories: 280,
+      category: 'Snacks',
+      image: '🥐',
+    ),
+    const MenuProduct(
+      id: 104,
+      name: 'Matcha Jasmine Crepe',
+      description: 'Delicate matcha crepe layers with airy jasmine-infused pastry cream.',
+      price: '7.50',
+      rawPrice: 7.50,
+      calories: 340,
+      category: 'Snacks',
+      image: '🥞',
+    ),
+    const MenuProduct(
+      id: 105,
+      name: 'Avocado Sourdough Toast',
+      description: 'Crushed Hass avocado, cherry tomatoes, and feta on organic levain.',
+      price: '11.50',
+      rawPrice: 11.50,
+      calories: 280,
+      category: 'Meals',
+      image: '🥪',
+    ),
+    const MenuProduct(
+      id: 106,
+      name: 'Smoked Turkey Ciabatta',
+      description: 'Hand-carved turkey breast, heirloom tomatoes, pesto, and melted provolone.',
+      price: '12.00',
+      rawPrice: 12.00,
+      calories: 340,
+      category: 'Meals',
+      image: '🥪',
+    ),
+    const MenuProduct(
+      id: 107,
+      name: 'Pistachio Raspberry Tart',
+      description: 'Sweet pastry shell filled with rich pistachio cream and fresh raspberries.',
+      price: '6.50',
+      rawPrice: 6.50,
+      calories: 280,
+      category: 'Desserts',
+      image: '🍰',
+    ),
+    const MenuProduct(
+      id: 108,
+      name: 'Sourdough Chocolate Cookie',
+      description: 'Crispy edges with gooey, rich dark chocolate pools and flaked sea salt.',
+      price: '3.25',
+      rawPrice: 3.25,
+      calories: 340,
+      category: 'Desserts',
+      image: '🍪',
+    ),
   ];
 
   @override
@@ -33,6 +118,68 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
     _descCtrl.dispose();
     _priceCtrl.dispose();
     super.dispose();
+  }
+
+  String _normalizeCategory(String cat) {
+    final lower = cat.toLowerCase();
+    if (lower.contains('beverage') || lower.contains('coffee') || lower.contains('tea')) {
+      return 'Beverages';
+    }
+    if (lower.contains('snack') || lower.contains('pastr')) {
+      return 'Snacks';
+    }
+    if (lower.contains('meal') || lower.contains('brunch') || lower.contains('sand')) {
+      return 'Meals';
+    }
+    if (lower.contains('dessert') || lower.contains('sweet') || lower.contains('cake') || lower.contains('cookie') || lower.contains('tart')) {
+      return 'Desserts';
+    }
+    return 'Beverages';
+  }
+
+  /// Automatically fetch and populate Category, Description, Price, and Image by Item Name from Database
+  void _fetchDetailsByName(String name) {
+    final cleanName = name.trim().toLowerCase();
+    if (cleanName.isEmpty) return;
+
+    MenuProduct? match;
+
+    // 1. Search in live database products
+    for (final p in MenuData.products) {
+      if (p.name.toLowerCase() == cleanName || p.name.toLowerCase().contains(cleanName)) {
+        match = p;
+        break;
+      }
+    }
+
+    // 2. Search in standard database seed templates
+    if (match == null) {
+      for (final t in _catalogDatabaseTemplates) {
+        if (t.name.toLowerCase() == cleanName || t.name.toLowerCase().contains(cleanName)) {
+          match = t;
+          break;
+        }
+      }
+    }
+
+    if (match != null) {
+      setState(() {
+        _nameCtrl.text = match!.name;
+        _selectedCategory = _normalizeCategory(match.category);
+        _descCtrl.text = match.description;
+        _priceCtrl.text = match.numericPrice.toStringAsFixed(2);
+        if (_emojiOptions.contains(match.image)) {
+          _selectedEmoji = match.image;
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Details for "${match.name}" fetched from database!'),
+          duration: const Duration(milliseconds: 1400),
+          backgroundColor: const Color(0xFF4C8A65),
+        ),
+      );
+    }
   }
 
   Future<void> _save() async {
@@ -47,11 +194,7 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
     final catLower = _selectedCategory.toLowerCase();
     for (final c in MenuData.categories) {
       final nameLower = c.name.toLowerCase();
-      if (nameLower == catLower ||
-          (catLower == 'coffee' && nameLower.contains('beverage')) ||
-          (catLower == 'tea' && nameLower.contains('beverage')) ||
-          (catLower == 'pastries' && nameLower.contains('snack')) ||
-          (catLower == 'brunch' && nameLower.contains('meal'))) {
+      if (nameLower == catLower || nameLower.startsWith(catLower)) {
         categoryId = c.id;
         break;
       }
@@ -133,11 +276,11 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 64),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Emoji picker ──────────────────────────────
+                // ── Emoji / Image Picker ──────────────────────────────
                 Center(
                   child: Column(
                     children: [
@@ -159,7 +302,7 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Choose icon',
+                        'Item Image / Icon',
                         style: TextStyle(
                           color: palette.body,
                           fontSize: 12,
@@ -206,8 +349,8 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // ── Category chips ────────────────────────────
-                const _SectionLabel(label: 'Category'),
+                // ── Category / 4 Types ────────────────────────────
+                const _SectionLabel(label: 'Type (Category)'),
                 const SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -245,17 +388,57 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // ── Item name ─────────────────────────────────
-                const _SectionLabel(label: 'Item name'),
+                // ── Item name with Auto-Fetch ─────────────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const _SectionLabel(label: 'Item name'),
+                    Text(
+                      'Auto-fetches details from DB',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: palette.accentDark,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 _StyledField(
                   controller: _nameCtrl,
-                  hint: 'e.g. Caramel Oat Latte',
+                  hint: 'e.g. Craft Flat White',
                   icon: Icons.fastfood_outlined,
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.download_outlined, color: palette.accentDark),
+                    tooltip: 'Fetch details from database',
+                    onPressed: () => _fetchDetailsByName(_nameCtrl.text),
+                  ),
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Name is required' : null,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+
+                // Quick database catalog chips
+                Text(
+                  'Quick database items (tap name to auto-fill details):',
+                  style: TextStyle(color: palette.muted, fontSize: 11),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final item in _catalogDatabaseTemplates)
+                      ActionChip(
+                        label: Text(item.name, style: const TextStyle(fontSize: 11)),
+                        backgroundColor: palette.softSurface,
+                        side: BorderSide(color: palette.border),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        onPressed: () => _fetchDetailsByName(item.name),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 18),
 
                 // ── Description ───────────────────────────────
                 const _SectionLabel(label: 'Description'),
@@ -332,6 +515,7 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
                           ),
                   ),
                 ),
+                const SizedBox(height: 36),
               ],
             ),
           ),
@@ -365,6 +549,7 @@ class _StyledField extends StatelessWidget {
     required this.controller,
     required this.hint,
     required this.icon,
+    this.suffixIcon,
     this.maxLines = 1,
     this.keyboardType,
     this.inputFormatters,
@@ -374,6 +559,7 @@ class _StyledField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final IconData icon;
+  final Widget? suffixIcon;
   final int maxLines;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -393,6 +579,7 @@ class _StyledField extends StatelessWidget {
         hintText: hint,
         hintStyle: TextStyle(color: palette.muted, fontSize: 14),
         prefixIcon: Icon(icon, size: 18, color: palette.body),
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: palette.surface,
         contentPadding:

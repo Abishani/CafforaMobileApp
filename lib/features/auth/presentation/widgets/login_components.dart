@@ -70,6 +70,8 @@ class LoginField extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.controller,
+    this.errorText,
+    this.onChanged,
   });
 
   final String label;
@@ -77,6 +79,8 @@ class LoginField extends StatelessWidget {
   final IconData icon;
   final bool obscureText;
   final TextEditingController? controller;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +101,15 @@ class LoginField extends StatelessWidget {
         TextField(
           controller: controller,
           obscureText: obscureText,
+          onChanged: onChanged,
           style: TextStyle(color: palette.ink, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: palette.muted, fontSize: 14),
             prefixIcon: Icon(icon, size: 19, color: palette.body),
+            errorText: errorText,
+            errorMaxLines: 2,
+            errorStyle: const TextStyle(fontSize: 12, height: 1.2),
             filled: true,
             fillColor: palette.surface,
             contentPadding: const EdgeInsets.symmetric(

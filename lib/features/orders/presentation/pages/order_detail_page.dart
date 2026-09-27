@@ -92,7 +92,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           final order = snapshot.data!;
           final status = _liveStatus ?? order.status;
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
@@ -152,6 +152,65 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           ),
                         ),
                     ],
+                    const Divider(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Service / Pickup',
+                              style: TextStyle(color: palette.body, fontSize: 12),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              order.pickupType == 'TABLE' || order.tableNumber != null
+                                  ? 'Dine-In • Table ${order.tableNumber ?? "04"}'
+                                  : 'Counter Pickup',
+                              style: TextStyle(
+                                color: palette.ink,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Payment Method',
+                              style: TextStyle(color: palette.body, fontSize: 12),
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  order.paymentMethod?.contains('Card') == true
+                                      ? Icons.credit_card
+                                      : (order.paymentMethod?.contains('Wallet') == true
+                                          ? Icons.account_balance_wallet
+                                          : Icons.payments_outlined),
+                                  size: 15,
+                                  color: palette.accentDark,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  order.paymentMethod ?? 'Cash at Counter',
+                                  style: TextStyle(
+                                    color: palette.ink,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -311,37 +370,91 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               ],
               if (!isAdmin) ...[
                 const SizedBox(height: 16),
-                // Customer: show their pickup QR
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => showPickupQrSheet(
-                      context,
-                      orderId: order.id,
-                      orderLabel: 'Order #${order.id}',
+                if (order.status.toLowerCase() == 'completed') ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF86EFAC)),
                     ),
-                    icon: Icon(
-                      Icons.qr_code_2,
-                      size: 18,
-                      color: palette.accentDark,
+                    child: const Row(
+                      children: [
+                        Icon(Icons.check_circle,
+                            color: Color(0xFF16A34A), size: 24),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Order Picked Up & Completed! Enjoy your meal.',
+                            style: TextStyle(
+                              color: Color(0xFF166534),
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    label: Text(
-                      'Show Pickup QR',
-                      style: TextStyle(
-                        color: palette.accentDark,
-                        fontWeight: FontWeight.w600,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/menu', (route) => route.isFirst);
+                      },
+                      icon: const Icon(Icons.coffee_rounded, size: 18),
+                      label: const Text(
+                        'Place Next Order',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: BorderSide(color: palette.border),
-                      backgroundColor: palette.softSurface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.accentDark,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
-                ),
+                ] else ...[
+                  // Customer: show their pickup QR
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => showPickupQrSheet(
+                        context,
+                        orderId: order.id,
+                        orderLabel: 'Order #${order.id}',
+                      ),
+                      icon: Icon(
+                        Icons.qr_code_2,
+                        size: 18,
+                        color: palette.accentDark,
+                      ),
+                      label: Text(
+                        'Show Pickup QR',
+                        style: TextStyle(
+                          color: palette.accentDark,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: palette.border),
+                        backgroundColor: palette.softSurface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 36),
               ],
             ],
           );

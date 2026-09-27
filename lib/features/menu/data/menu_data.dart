@@ -77,6 +77,7 @@ abstract final class MenuData {
   static final _categories = <CategoryResponse>[];
 
   static final productsNotifier = ValueNotifier<int>(0);
+  static final isOfflineNotifier = ValueNotifier<bool>(false);
 
   /// All products: remote products from Spring Boot (or built-in fallback) + admin-added items.
   static List<MenuProduct> get products {
@@ -106,9 +107,12 @@ abstract final class MenuData {
           _remoteProducts.addAll(list);
           productsNotifier.value++;
         }
+        isOfflineNotifier.value = false;
         return list;
       }
-    } catch (_) {}
+    } catch (_) {
+      isOfflineNotifier.value = true;
+    }
     return products;
   }
 

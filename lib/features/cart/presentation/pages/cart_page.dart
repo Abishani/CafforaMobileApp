@@ -124,7 +124,7 @@ class _CartPageState extends State<CartPage> {
             AppSpacing.page,
             8,
             AppSpacing.page,
-            112,
+            130,
           ),
           child: Column(
             children: [
@@ -190,6 +190,11 @@ class _CartPageState extends State<CartPage> {
                   onRemove: (index) => _cart.removeItem(index),
                 ),
                 const SizedBox(height: 16),
+                PaymentMethodSelectorCard(
+                  selectedMethod: _cart.paymentMethod,
+                  onChanged: (val) => _cart.setPaymentMethod(val),
+                ),
+                const SizedBox(height: 16),
                 OrderSummaryCard(
                   tip: _cart.tipPercentage,
                   subtotal: _cart.subtotal,
@@ -208,6 +213,7 @@ class _CartPageState extends State<CartPage> {
                     onPressed: _handlePlaceOrder,
                   ),
                 ),
+                const SizedBox(height: 36),
               ],
             ],
           ),

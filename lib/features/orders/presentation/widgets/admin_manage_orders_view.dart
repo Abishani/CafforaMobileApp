@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../cart/presentation/pages/table_qr_scan_page.dart';
 import '../../../menu/data/menu_data.dart';
 import '../../data/cafe_orders_data.dart';
 
@@ -17,7 +18,7 @@ class AdminManageOrdersView extends StatefulWidget {
 }
 
 class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
-  String _selectedFilter = 'All';
+  String _selectedFilter = 'Active';
 
   @override
   void initState() {
@@ -37,13 +38,132 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
   }
 
   void _updateStatus(CafeOrder order, String newStatus) {
-    CafeOrdersData.updateOrderStatus(order.id, newStatus);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Order #${order.id} marked as $newStatus'),
-        duration: const Duration(milliseconds: 900),
+    if (newStatus == 'Completed') {
+      _confirmPickupAndComplete(order.id);
+    } else {
+      CafeOrdersData.updateOrderStatus(order.id, newStatus);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order #${order.id} marked as $newStatus'),
+          duration: const Duration(milliseconds: 900),
+        ),
+      );
+    }
+  }
+
+  Future<void> _confirmPickupAndComplete(String orderId) async {
+    await CafeOrdersData.updateOrderStatus(orderId, 'Completed');
+
+    if (!mounted) return;
+
+    final orders = CafeOrdersData.ordersNotifier.value;
+    final matched = orders.where((o) => o.id == orderId).firstOrNull;
+    final customerName = matched?.customerName ?? 'Registered Customer';
+    final total = matched?.total.toStringAsFixed(2) ?? '0.00';
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        final palette = ctx.appColors;
+        return AlertDialog(
+          backgroundColor: palette.surface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF22C55E).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF22C55E),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Pickup Confirmed!',
+                  style: TextStyle(
+                    color: palette.ink,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Customer has picked up Order #$orderId.',
+                style: TextStyle(
+                  color: palette.ink,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: palette.softSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('• Customer: $customerName',
+                        style: TextStyle(color: palette.body, fontSize: 13)),
+                    const SizedBox(height: 4),
+                    Text('• Total: \$$total',
+                        style: TextStyle(color: palette.body, fontSize: 13)),
+                    const SizedBox(height: 4),
+                    const Text(
+                      '• Status: Completed (Removed from Active queue)',
+                      style: TextStyle(
+                        color: Color(0xFF16A34A),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              style: FilledButton.styleFrom(
+                backgroundColor: palette.accentDark,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleScanPickupQr() async {
+    final result = await Navigator.of(context).push<QrScanResult>(
+      MaterialPageRoute(
+        builder: (_) => const TableQrScanPage(mode: QrScanMode.order),
       ),
     );
+
+    if (result is OrderScanResult && mounted) {
+      await _confirmPickupAndComplete(result.orderId);
+    }
   }
 
   void _advanceOrder(CafeOrder order) {
@@ -55,7 +175,7 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
         _updateStatus(order, 'Ready');
         break;
       case 'Ready':
-        _updateStatus(order, 'Completed');
+        _confirmPickupAndComplete(order.id);
         break;
     }
   }
@@ -318,6 +438,85 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 14),
+
+        // ── Scan Customer Pickup QR Action Card ───────────────────
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                palette.accentDark,
+                palette.accent,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: palette.accentDark.withValues(alpha: 0.25),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _handleScanPickupQr,
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.qr_code_scanner_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Scan Customer Pickup QR',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Scan QR to verify handover & complete order',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white70,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 18),
 
@@ -611,22 +810,46 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
           ),
         );
       case 'Ready':
-        return FilledButton(
-          onPressed: () => _advanceOrder(order),
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFDCFCE7),
-            foregroundColor: const Color(0xFF15803D),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OutlinedButton.icon(
+              onPressed: _handleScanPickupQr,
+              icon: const Icon(Icons.qr_code_scanner, size: 14),
+              label: const Text(
+                'Scan QR',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF15803D),
+                side: const BorderSide(color: Color(0xFF86EFAC)),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
-          ),
-          child: const Text(
-            'Complete',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
+            const SizedBox(width: 6),
+            FilledButton(
+              onPressed: () => _advanceOrder(order),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFDCFCE7),
+                foregroundColor: const Color(0xFF15803D),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Complete',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         );
       case 'Completed':
       default:

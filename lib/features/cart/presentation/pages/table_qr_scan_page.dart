@@ -66,11 +66,19 @@ class _TableQrScanPageState extends State<TableQrScanPage> {
       } else if (raw.toUpperCase().startsWith('T-') || RegExp(r'^\d+$').hasMatch(raw)) {
         result = TableScanResult(raw, rawCode: 'cafe://table/$raw');
       }
-    } else if (widget.mode == QrScanMode.order &&
-        raw.startsWith('CAFFORA_ORDER:')) {
-      final parts = raw.split(':');
-      if (parts.length >= 3) {
-        result = OrderScanResult(parts[1]);
+    } else if (widget.mode == QrScanMode.order) {
+      if (raw.startsWith('CAFFORA_ORDER:')) {
+        final parts = raw.split(':');
+        if (parts.length >= 3) {
+          result = OrderScanResult(parts[1]);
+        }
+      } else if (raw.startsWith('ORDER:')) {
+        final parts = raw.split(':');
+        if (parts.length >= 2) {
+          result = OrderScanResult(parts[1]);
+        }
+      } else if (RegExp(r'^\d+$').hasMatch(raw.trim())) {
+        result = OrderScanResult(raw.trim());
       }
     }
 
@@ -177,6 +185,29 @@ class _TableQrScanPageState extends State<TableQrScanPage> {
                             Navigator.of(context).pop(
                               TableScanResult(table, rawCode: 'cafe://table/$table'),
                             );
+                          },
+                        ),
+                    ],
+                  ),
+                ] else ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      for (final orderId in ['1', '2', '3'])
+                        ActionChip(
+                          backgroundColor: Colors.white.withValues(alpha: 0.18),
+                          side: BorderSide(color: palette.accent),
+                          avatar: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 15),
+                          label: Text(
+                            'Scan Order #$orderId',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            _scanned = true;
+                            _controller.stop();
+                            Navigator.of(context).pop(OrderScanResult(orderId));
                           },
                         ),
                     ],

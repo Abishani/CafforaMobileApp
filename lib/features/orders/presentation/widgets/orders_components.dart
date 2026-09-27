@@ -174,28 +174,36 @@ class ActiveOrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.timer_outlined,
-                    color: palette.accentDark,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Ready in ~4 mins',
-                    style: TextStyle(
-                      color: palette.ink,
-                      fontSize: 18,
-                      height: 24 / 18,
-                      fontWeight: FontWeight.bold,
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      color: palette.accentDark,
+                      size: 18,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'Ready in ~4 mins',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: palette.ink,
+                          fontSize: 16,
+                          height: 22 / 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
+                  horizontal: 10,
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
@@ -203,14 +211,15 @@ class ActiveOrderCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.circle, size: 8, color: palette.accentDark),
-                    const SizedBox(width: 6),
+                    Icon(Icons.circle, size: 7, color: palette.accentDark),
+                    const SizedBox(width: 5),
                     Text(
                       'Total Paid: \$14.99',
                       style: TextStyle(
                         color: palette.accentDark,
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

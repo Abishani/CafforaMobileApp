@@ -38,6 +38,7 @@ class CartController extends ChangeNotifier {
 
   final List<CartItem> _items = [];
   bool _isDineIn = true;
+  String _paymentMethod = 'CASH'; // 'CASH', 'CARD', 'MOBILE_WALLET'
   int _tipPercentage = 18;
   int? _tableId;
   String _tableNumber = '04';
@@ -46,6 +47,7 @@ class CartController extends ChangeNotifier {
   List<CartItem> get items => List.unmodifiable(_items);
   int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
   bool get isDineIn => _isDineIn;
+  String get paymentMethod => _paymentMethod;
   int get tipPercentage => _tipPercentage;
   int? get tableId => _tableId;
   String get tableNumber => _tableNumber;
@@ -124,6 +126,11 @@ class CartController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPaymentMethod(String method) {
+    _paymentMethod = method;
+    notifyListeners();
+  }
+
   void setTipPercentage(int tip) {
     _tipPercentage = tip;
     notifyListeners();
@@ -180,6 +187,7 @@ class CartController extends ChangeNotifier {
             .toList(),
         pickupType: _isDineIn ? 'TABLE' : 'COUNTER',
         tableId: _isDineIn ? _tableId : null,
+        paymentMethod: _paymentMethod,
       );
 
       final data = await ApiClient.instance.post(
@@ -201,6 +209,8 @@ class CartController extends ChangeNotifier {
         orderNumber: 'CF-4892',
         status: 'PENDING',
         pickupType: _isDineIn ? 'TABLE' : 'COUNTER',
+        paymentMethod: _paymentMethod,
+        paymentStatus: _paymentMethod == 'CASH' ? 'PENDING' : 'PAID',
         tableNumber: _tableNumber,
         subtotal: subtotal,
         pickupFee: 0.0,

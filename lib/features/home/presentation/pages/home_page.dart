@@ -4,8 +4,10 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_controller.dart';
 import '../../../../core/auth/auth_scope.dart';
 import '../../../cart/data/cart_controller.dart';
+import '../../../cart/presentation/pages/table_qr_scan_page.dart';
 import '../../../menu/data/menu_data.dart';
 import '../../data/home_data.dart';
+import '../../../profile/data/contact_invite_service.dart';
 import '../widgets/home_components.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,6 +34,42 @@ class _HomePageState extends State<HomePage> {
 
   void _onCartChanged() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _handleScanTableQr() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    final result = await nav.push<QrScanResult>(
+      MaterialPageRoute(
+        builder: (_) => const TableQrScanPage(mode: QrScanMode.table),
+      ),
+    );
+    if (result is TableScanResult && mounted) {
+      final codeToResolve = result.rawCode ?? result.tableNumber;
+      await CartController.instance.resolveTableFromCode(codeToResolve);
+      CartController.instance.setTable(CartController.instance.tableId, result.tableNumber);
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.table_restaurant, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Table #${result.tableNumber} checked in! Browse menu to order.'),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.accentDark,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      nav.pushReplacementNamed('/menu');
+    }
+  }
+
+  Future<void> _handleInviteFriend() async {
+    await ContactInviteService.instance.openInviteHub(context);
   }
 
   void _addToCart(HomeProduct product) {
@@ -64,12 +102,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showOrderMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Pickup ordering is ready to explore'),
-        duration: Duration(milliseconds: 900),
-      ),
-    );
+    Navigator.of(context).pushReplacementNamed('/menu');
   }
 
   void _selectNavigation(int index) {
@@ -77,6 +110,8 @@ class _HomePageState extends State<HomePage> {
     if (role == UserRole.guest) {
       if (index == 1) {
         Navigator.of(context).pushReplacementNamed('/menu');
+      } else if (index == 2) {
+        Navigator.of(context).pushNamed('/appearance');
       }
       return;
     }
@@ -116,6 +151,10 @@ class _HomePageState extends State<HomePage> {
     final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
     final isGuest = role == UserRole.guest;
 
+    final mediaQuery = MediaQuery.of(context);
+    final isTablet = mediaQuery.size.width > 600;
+    final horizontalPadding = isTablet ? 36.0 : AppSpacing.page;
+
     return Scaffold(
       backgroundColor: palette.background,
       extendBody: true,
@@ -126,46 +165,178 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.page,
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
             8,
-            AppSpacing.page,
-            96,
+            horizontalPadding,
+            120,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Good morning, Alex',
-                style: TextStyle(
-                  color: palette.ink,
-                  fontSize: 22,
-                  height: 28 / 22,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -.55,
-                ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Good morning, Alex',
+                    style: TextStyle(
+                      color: palette.ink,
+                      fontSize: 22,
+                      height: 28 / 22,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -.55,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const HomeSearchBar(),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: _handleScanTableQr,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: palette.surface,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: palette.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: palette.cardShadow,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: palette.accentDark.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.qr_code_scanner,
+                                    color: palette.accentDark,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Scan Table QR',
+                                        style: TextStyle(
+                                          color: palette.ink,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Dine-in order',
+                                        style: TextStyle(
+                                          color: palette.body,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: _handleInviteFriend,
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: palette.surface,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: palette.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: palette.cardShadow,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF4C8A65).withValues(alpha: 0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.person_add_alt_1,
+                                    color: Color(0xFF4C8A65),
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Invite a Friend',
+                                        style: TextStyle(
+                                          color: palette.ink,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Get 20% off',
+                                        style: TextStyle(
+                                          color: palette.body,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  if (!isGuest) ...[
+                    PickupBanner(onOrder: _showOrderMessage),
+                    const SizedBox(height: AppSpacing.section),
+                  ],
+                  HomeSection(
+                    title: 'Popular Drinks',
+                    subtitle: 'Signature brews curated daily',
+                    products: HomeData.drinks,
+                    onAdd: _addToCart,
+                  ),
+                  const SizedBox(height: AppSpacing.section),
+                  HomeSection(
+                    title: 'Bakery & Treats',
+                    subtitle: 'Baked fresh in-house every morning',
+                    products: HomeData.bakery,
+                    onAdd: _addToCart,
+                  ),
+                  const SizedBox(height: 36),
+                ],
               ),
-              const SizedBox(height: 16),
-              const HomeSearchBar(),
-              const SizedBox(height: 24),
-              if (!isGuest) ...[
-                PickupBanner(onOrder: _showOrderMessage),
-                const SizedBox(height: AppSpacing.section),
-              ],
-              HomeSection(
-                title: 'Popular Drinks',
-                subtitle: 'Signature brews curated daily',
-                products: HomeData.drinks,
-                onAdd: _addToCart,
-              ),
-              const SizedBox(height: AppSpacing.section),
-              HomeSection(
-                title: 'Bakery & Treats',
-                subtitle: 'Baked fresh in-house every morning',
-                products: HomeData.bakery,
-                onAdd: _addToCart,
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -13,6 +13,8 @@ class OrderListItem {
     required this.status,
     this.customerName,
     this.orderNumber,
+    this.paymentMethod,
+    this.paymentStatus,
   });
 
   final String id;
@@ -22,6 +24,8 @@ class OrderListItem {
   final String status;
   final String? customerName;
   final String? orderNumber;
+  final String? paymentMethod;
+  final String? paymentStatus;
 }
 
 class OrderLineItem {
@@ -49,6 +53,8 @@ class OrderDetails {
     this.orderNumber,
     this.tableNumber,
     this.pickupType,
+    this.paymentMethod,
+    this.paymentStatus,
   });
 
   final String id;
@@ -61,6 +67,8 @@ class OrderDetails {
   final String? orderNumber;
   final String? tableNumber;
   final String? pickupType;
+  final String? paymentMethod;
+  final String? paymentStatus;
 
   double get total => items.fold(0, (sum, item) => sum + item.subtotal);
 }
@@ -93,6 +101,8 @@ class OrderRepository {
             total: res.total,
             status: res.displayStatus,
             customerName: res.customerName,
+            paymentMethod: res.displayPaymentMethod,
+            paymentStatus: res.displayPaymentStatus,
           );
         }).toList();
       }
@@ -115,6 +125,8 @@ class OrderRepository {
           customerName: res.customerName,
           tableNumber: res.tableNumber,
           pickupType: res.pickupType,
+          paymentMethod: res.displayPaymentMethod,
+          paymentStatus: res.displayPaymentStatus,
           items: res.items
               .map((i) => OrderLineItem(
                     name: i.name,

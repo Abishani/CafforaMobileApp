@@ -154,7 +154,7 @@ class _OrdersPageState extends State<OrdersPage> {
               AppSpacing.page,
               4,
               AppSpacing.page,
-              96,
+              130,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,30 +286,37 @@ class _OrdersPageState extends State<OrdersPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.receipt_outlined,
-                                      size: 16,
-                                      color: palette.accentDark,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.receipt_outlined,
+                                          size: 16,
+                                          color: palette.accentDark,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            order.orderNumber != null &&
+                                                    order.orderNumber!.isNotEmpty
+                                                ? order.orderNumber!
+                                                : 'Order #${order.id}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: palette.ink,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      order.orderNumber != null &&
-                                              order.orderNumber!.isNotEmpty
-                                          ? order.orderNumber!
-                                          : 'Order #${order.id}',
-                                      style: TextStyle(
-                                        color: palette.ink,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
@@ -396,6 +403,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       ),
                     ),
                   ],
+                const SizedBox(height: 36),
               ],
             ),
           ),

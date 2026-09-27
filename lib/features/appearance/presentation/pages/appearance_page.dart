@@ -58,11 +58,12 @@ class AppearancePage extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
+                    tooltip: isGuest ? 'Back to Home' : 'Back to Profile',
                     onPressed: () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
                       } else {
-                        Navigator.of(context).pushReplacementNamed('/profile');
+                        Navigator.of(context).pushReplacementNamed(isGuest ? '/' : '/profile');
                       }
                     },
                     icon: Icon(Icons.chevron_left, size: 24, color: palette.ink),
@@ -72,7 +73,6 @@ class AppearancePage extends StatelessWidget {
                       side: BorderSide(color: palette.border),
                       padding: EdgeInsets.zero,
                     ),
-                    tooltip: 'Back to Profile',
                   ),
                   const Spacer(),
                   Text(
