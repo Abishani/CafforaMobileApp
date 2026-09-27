@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:caffora_mobile_app/main.dart';
 import 'package:caffora_mobile_app/core/auth/auth_controller.dart';
+import 'package:caffora_mobile_app/features/auth/presentation/pages/login_page.dart';
 
 void main() {
   setUp(() {
@@ -20,7 +21,6 @@ void main() {
   testWidgets('renders the Caffora home screen', (WidgetTester tester) async {
     await tester.pumpWidget(const CafforaApp());
 
-    expect(find.text('Good morning, Alex'), findsOneWidget);
     expect(find.text('Popular Drinks'), findsOneWidget);
     expect(find.text('Bakery & Treats'), findsOneWidget);
   });
@@ -163,7 +163,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.login_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Name'), findsOneWidget);
+    expect(find.text('Name'), findsNothing);
     expect(find.text('Email address'), findsOneWidget);
     expect(find.text('Sign in'), findsOneWidget);
   });
@@ -178,7 +178,7 @@ void main() {
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Good morning, Alex'), findsOneWidget);
+    expect(find.text('Popular Drinks'), findsOneWidget);
     expect(find.byIcon(Icons.login_outlined), findsOneWidget);
   });
 
@@ -257,19 +257,19 @@ void main() {
   ) async {
     await tester.pumpWidget(CafforaApp(authController: AuthController.guest()));
 
-    expect(Theme.of(tester.element(find.text('Good morning, Alex'))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text('Popular Drinks'))).brightness, Brightness.light);
 
     // Tap quick theme toggle in header
     await tester.tap(find.byIcon(Icons.dark_mode_outlined));
     await tester.pumpAndSettle();
 
-    expect(Theme.of(tester.element(find.text('Good morning, Alex'))).brightness, Brightness.dark);
+    expect(Theme.of(tester.element(find.text('Popular Drinks'))).brightness, Brightness.dark);
 
     // Tap to toggle back to light
     await tester.tap(find.byIcon(Icons.light_mode_outlined));
     await tester.pumpAndSettle();
 
-    expect(Theme.of(tester.element(find.text('Good morning, Alex'))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text('Popular Drinks'))).brightness, Brightness.light);
   });
 
   testWidgets('guest user can open Appearance and switch theme', (
@@ -296,15 +296,17 @@ void main() {
     // Guest back button returns to Home
     await tester.tap(find.byTooltip('Back to Home'));
     await tester.pumpAndSettle();
-    expect(find.text('Good morning, Alex'), findsOneWidget);
+    expect(find.text('Popular Drinks'), findsOneWidget);
   });
 
-  testWidgets('sign in asks for name and displays entered name and email on profile', (
+  testWidgets('create account asks for name and displays entered name and email on profile', (
     WidgetTester tester,
   ) async {
     final auth = AuthController.guest();
     await tester.pumpWidget(CafforaApp(authController: auth));
-    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/login');
+    tester.state<NavigatorState>(find.byType(Navigator)).push(
+      MaterialPageRoute(builder: (_) => const LoginPage(initialCreateAccount: true)),
+    );
     await tester.pumpAndSettle();
 
     // Enter Name
@@ -319,11 +321,11 @@ void main() {
     );
     // Enter Password
     await tester.enterText(
-      find.widgetWithText(TextField, 'Enter your password'),
+      find.widgetWithText(TextField, 'Create a password'),
       'secret123',
     );
 
-    await tester.tap(find.text('Sign in'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
     await tester.pumpAndSettle();
 
     expect(find.text('Profile'), findsOneWidget);
@@ -332,6 +334,21 @@ void main() {
     // Ensure Morgan is not appended and dummy email is not used
     expect(find.text('Sarah Connor Morgan'), findsNothing);
     expect(find.text('sarah.morgan@example.com'), findsNothing);
+  });
+
+  testWidgets('sign in does not ask for name, only asks for email and password', (
+    WidgetTester tester,
+  ) async {
+    final auth = AuthController.guest();
+    await tester.pumpWidget(CafforaApp(authController: auth));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/login');
+    await tester.pumpAndSettle();
+
+    // Name field should NOT be present on sign in
+    expect(find.widgetWithText(TextField, 'Enter your name'), findsNothing);
+    // Email and Password fields are present
+    expect(find.widgetWithText(TextField, 'you@example.com'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Enter your password'), findsOneWidget);
   });
 
   testWidgets('profile displays guest name and email for guest user', (

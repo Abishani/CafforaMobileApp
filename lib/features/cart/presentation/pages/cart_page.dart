@@ -4,6 +4,7 @@ import '../../../../core/auth/auth_scope.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/widgets/home_components.dart';
+import '../../../orders/data/cafe_orders_data.dart';
 import '../../data/cart_controller.dart';
 import '../pages/table_qr_scan_page.dart';
 import '../widgets/cart_components.dart';
@@ -74,6 +75,10 @@ class _CartPageState extends State<CartPage> {
 
     try {
       final order = await _cart.placeOrder();
+      CafeOrdersData.addPlacedOrder(
+        order,
+        customerName: auth?.displayName ?? 'Registered Customer',
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

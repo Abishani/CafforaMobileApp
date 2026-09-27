@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -19,16 +21,22 @@ class AdminManageOrdersView extends StatefulWidget {
 
 class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
   String _selectedFilter = 'Active';
+  Timer? _pollingTimer;
 
   @override
   void initState() {
     super.initState();
     CafeOrdersData.ordersNotifier.addListener(_onOrdersChanged);
     CafeOrdersData.loadOrdersQueue();
+    // Continuous real-time synchronization with Spring Boot database
+    _pollingTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      CafeOrdersData.loadOrdersQueue();
+    });
   }
 
   @override
   void dispose() {
+    _pollingTimer?.cancel();
     CafeOrdersData.ordersNotifier.removeListener(_onOrdersChanged);
     super.dispose();
   }
@@ -52,14 +60,27 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
   }
 
   Future<void> _confirmPickupAndComplete(String orderId) async {
+    // 1. Resolve order details from local cache or backend
+    var matched = CafeOrdersData.findOrder(orderId);
+    if (matched == null) {
+      await CafeOrdersData.loadOrdersQueue();
+      matched = CafeOrdersData.findOrder(orderId);
+    }
+
+    // 2. Persist Completed status into the Spring Boot database
     await CafeOrdersData.updateOrderStatus(orderId, 'Completed');
 
-    if (!mounted) return;
+    // 3. Re-check for fresh details from database
+    matched ??= CafeOrdersData.findOrder(orderId);
 
-    final orders = CafeOrdersData.ordersNotifier.value;
-    final matched = orders.where((o) => o.id == orderId).firstOrNull;
     final customerName = matched?.customerName ?? 'Registered Customer';
+    final orderNum = matched?.orderNumber ?? '#$orderId';
     final total = matched?.total.toStringAsFixed(2) ?? '0.00';
+    final itemsSummary = (matched != null && matched.items.isNotEmpty)
+        ? matched.items.map((i) => '${i.quantity}x ${i.name}').join(', ')
+        : 'Handcrafted Coffee & Items';
+
+    if (!mounted) return;
 
     await showDialog<void>(
       context: context,
@@ -101,7 +122,7 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Customer has picked up Order #$orderId.',
+                'Customer has picked up Order $orderNum.',
                 style: TextStyle(
                   color: palette.ink,
                   fontSize: 14,
@@ -110,6 +131,7 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
               ),
               const SizedBox(height: 10),
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: palette.softSurface,
@@ -119,18 +141,30 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('• Customer: $customerName',
+                        style: TextStyle(
+                            color: palette.body,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 4),
+                    Text('• Items: $itemsSummary',
                         style: TextStyle(color: palette.body, fontSize: 13)),
                     const SizedBox(height: 4),
                     Text('• Total: \$$total',
                         style: TextStyle(color: palette.body, fontSize: 13)),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '• Status: Completed (Removed from Active queue)',
-                      style: TextStyle(
-                        color: Color(0xFF16A34A),
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const SizedBox(height: 6),
+                    const Row(
+                      children: [
+                        Icon(Icons.check, size: 14, color: Color(0xFF16A34A)),
+                        SizedBox(width: 4),
+                        Text(
+                          'Database Status: Completed',
+                          style: TextStyle(
+                            color: Color(0xFF16A34A),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

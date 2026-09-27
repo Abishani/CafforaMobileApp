@@ -150,6 +150,7 @@ class _HomePageState extends State<HomePage> {
     final palette = context.appColors;
     final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
     final isGuest = role == UserRole.guest;
+    final isRegisteredUser = role == UserRole.registered;
 
     final mediaQuery = MediaQuery.of(context);
     final isTablet = mediaQuery.size.width > 600;
@@ -177,145 +178,136 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Good morning, Alex',
-                    style: TextStyle(
-                      color: palette.ink,
-                      fontSize: 22,
-                      height: 28 / 22,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -.55,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   const HomeSearchBar(),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: _handleScanTableQr,
-                          borderRadius: BorderRadius.circular(14),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: palette.surface,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: palette.border),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: palette.cardShadow,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: palette.accentDark.withValues(alpha: 0.1),
-                                    shape: BoxShape.circle,
+                  if (isRegisteredUser) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: _handleScanTableQr,
+                            borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: palette.surface,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: palette.border),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: palette.cardShadow,
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
                                   ),
-                                  child: Icon(
-                                    Icons.qr_code_scanner,
-                                    color: palette.accentDark,
-                                    size: 18,
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: palette.accentDark.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.qr_code_scanner,
+                                      color: palette.accentDark,
+                                      size: 18,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Scan Table QR',
-                                        style: TextStyle(
-                                          color: palette.ink,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Scan Table QR',
+                                          style: TextStyle(
+                                            color: palette.ink,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Dine-in order',
-                                        style: TextStyle(
-                                          color: palette.body,
-                                          fontSize: 11,
+                                        Text(
+                                          'Dine-in order',
+                                          style: TextStyle(
+                                            color: palette.body,
+                                            fontSize: 11,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: InkWell(
-                          onTap: _handleInviteFriend,
-                          borderRadius: BorderRadius.circular(14),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: palette.surface,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: palette.border),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: palette.cardShadow,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF4C8A65).withValues(alpha: 0.12),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.person_add_alt_1,
-                                    color: Color(0xFF4C8A65),
-                                    size: 18,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Invite a Friend',
-                                        style: TextStyle(
-                                          color: palette.ink,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Get 20% off',
-                                        style: TextStyle(
-                                          color: palette.body,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: InkWell(
+                            onTap: _handleInviteFriend,
+                            borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: palette.surface,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: palette.border),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: palette.cardShadow,
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF4C8A65).withValues(alpha: 0.12),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.person_add_alt_1,
+                                      color: Color(0xFF4C8A65),
+                                      size: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Invite a Friend',
+                                          style: TextStyle(
+                                            color: palette.ink,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Get 20% off',
+                                          style: TextStyle(
+                                            color: palette.body,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                   if (!isGuest) ...[
                     PickupBanner(onOrder: _showOrderMessage),
                     const SizedBox(height: AppSpacing.section),

@@ -105,12 +105,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     final auth = AuthScope.of(context);
-    final rawEmail = _emailController.text.trim();
-    final rawName = _nameController.text.trim();
-    final email = rawEmail.isNotEmpty
-        ? rawEmail
-        : (rawName.contains('@') ? rawName : '');
-    final name = rawName.contains('@') ? '' : rawName;
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     final isTestBypass = password.isEmpty &&
@@ -165,6 +160,15 @@ class _LoginPageState extends State<LoginPage> {
         );
         return;
       }
+      if (email.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter your email address'),
+            duration: Duration(milliseconds: 1200),
+          ),
+        );
+        return;
+      }
       final error = await auth.signUp(
         name: name,
         email: email,
@@ -198,7 +202,6 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
       final error = await auth.signIn(
-        name: name.isNotEmpty ? name : null,
         email: email,
         password: password,
       );
@@ -264,13 +267,15 @@ class _LoginPageState extends State<LoginPage> {
                         : 'Sign in to continue your Caffora experience.',
                   ),
                   const SizedBox(height: 14),
-                  LoginField(
-                    label: 'Name',
-                    hint: 'Enter your name',
-                    icon: Icons.person_outline,
-                    controller: _nameController,
-                  ),
-                  const SizedBox(height: 10),
+                  if (_isCreateAccount) ...[
+                    LoginField(
+                      label: 'Name',
+                      hint: 'Enter your name',
+                      icon: Icons.person_outline,
+                      controller: _nameController,
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                   LoginField(
                     label: 'Email address',
                     hint: 'you@example.com',

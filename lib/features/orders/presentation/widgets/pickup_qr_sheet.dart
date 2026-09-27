@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../../core/models/order_models.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/cafe_orders_data.dart';
 
@@ -41,18 +45,45 @@ class _PickupQrSheet extends StatefulWidget {
 class _PickupQrSheetState extends State<_PickupQrSheet> {
   String get _qrData => 'CAFFORA_ORDER:${widget.orderId}:VERIFY';
   bool _isCompleted = false;
+  Timer? _statusCheckTimer;
 
   @override
   void initState() {
     super.initState();
     _checkInitialStatus();
     CafeOrdersData.ordersNotifier.addListener(_onOrdersChanged);
+    _statusCheckTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _checkBackendStatus();
+    });
   }
 
   @override
   void dispose() {
+    _statusCheckTimer?.cancel();
     CafeOrdersData.ordersNotifier.removeListener(_onOrdersChanged);
     super.dispose();
+  }
+
+  Future<void> _checkBackendStatus() async {
+    if (_isCompleted) return;
+    try {
+      final cleanId = widget.orderId.replaceAll(RegExp(r'\D'), '');
+      final targetId = cleanId.isNotEmpty ? cleanId : widget.orderId;
+      final data = await ApiClient.instance.get(
+        '/api/orders/$targetId',
+        requiresAuth: true,
+      );
+      if (data is Map<String, dynamic>) {
+        final res = OrderResponse.fromJson(data);
+        if (res.status.toUpperCase() == 'COMPLETED') {
+          if (mounted && !_isCompleted) {
+            setState(() {
+              _isCompleted = true;
+            });
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   void _checkInitialStatus() {

@@ -69,15 +69,59 @@ abstract final class CafeOrdersData {
   static final ValueNotifier<List<CafeOrder>> ordersNotifier =
       ValueNotifier<List<CafeOrder>>(_initialOrders);
 
-  /// Loads live orders queue from Spring Boot `GET /api/orders`.
+  /// Finds an order by ID, orderNumber, or numeric digits
+  static CafeOrder? findOrder(String query) {
+    final clean = query.trim().toUpperCase();
+    for (final o in ordersNotifier.value) {
+      if (o.id.toUpperCase() == clean) return o;
+      if (o.orderNumber != null && o.orderNumber!.toUpperCase() == clean) return o;
+      final oDigits = o.id.replaceAll(RegExp(r'\D'), '');
+      final qDigits = clean.replaceAll(RegExp(r'\D'), '');
+      if (oDigits.isNotEmpty && qDigits.isNotEmpty && oDigits == qDigits) return o;
+    }
+    return null;
+  }
+
+  /// Adds a newly placed customer order into the active queue immediately
+  static void addPlacedOrder(OrderResponse res, {String? customerName}) {
+    final newOrder = CafeOrder.fromResponse(res);
+    final effectiveCustomer = (customerName != null && customerName.isNotEmpty)
+        ? customerName
+        : newOrder.customerName;
+
+    final resolved = CafeOrder(
+      id: newOrder.id,
+      orderNumber: newOrder.orderNumber,
+      customerName: effectiveCustomer,
+      orderType: newOrder.orderType,
+      total: newOrder.total,
+      items: newOrder.items,
+      status: newOrder.status,
+      placedAt: newOrder.placedAt,
+    );
+
+    final current = List<CafeOrder>.from(ordersNotifier.value);
+    current.removeWhere((o) =>
+        o.id == resolved.id ||
+        (o.orderNumber != null && o.orderNumber == resolved.orderNumber));
+    current.insert(0, resolved);
+    ordersNotifier.value = current;
+  }
+
+  /// Loads live orders queue from Spring Boot database `GET /api/orders`.
   static Future<void> loadOrdersQueue({bool activeOnly = false}) async {
     try {
       final query = activeOnly ? {'active': 'true'} : <String, dynamic>{};
-      final data = await ApiClient.instance.get('/api/orders', queryParameters: query, requiresAuth: true);
+      final data = await ApiClient.instance.get(
+        '/api/orders',
+        queryParameters: query,
+        requiresAuth: true,
+      );
 
       if (data is List) {
         final list = data
-            .map((json) => CafeOrder.fromResponse(OrderResponse.fromJson(json as Map<String, dynamic>)))
+            .map((json) => CafeOrder.fromResponse(
+                OrderResponse.fromJson(json as Map<String, dynamic>)))
             .toList();
 
         ordersNotifier.value = list;
@@ -86,13 +130,22 @@ abstract final class CafeOrdersData {
     } catch (_) {}
   }
 
-  /// Updates status on Spring Boot `PATCH /api/orders/{id}/status`.
+  /// Updates status on Spring Boot database `PATCH /api/orders/{id}/status`.
   static Future<void> updateOrderStatus(String orderId, String newStatus) async {
     final backendStatus = _toBackendStatus(newStatus);
 
+    // Resolve target numeric database ID
+    final matched = findOrder(orderId);
+    final targetId = matched?.id ?? orderId.replaceAll(RegExp(r'\D'), '');
+    final finalId = targetId.isNotEmpty ? targetId : orderId;
+
     // Optimistic UI update
     final currentList = List<CafeOrder>.from(ordersNotifier.value);
-    final index = currentList.indexWhere((o) => o.id == orderId);
+    final index = currentList.indexWhere((o) =>
+        o.id == orderId ||
+        (o.orderNumber != null &&
+            o.orderNumber!.toUpperCase() == orderId.toUpperCase()) ||
+        o.id == finalId);
     if (index != -1) {
       currentList[index].status = newStatus;
       ordersNotifier.value = currentList;
@@ -100,13 +153,13 @@ abstract final class CafeOrdersData {
 
     try {
       await ApiClient.instance.patch(
-        '/api/orders/$orderId/status',
+        '/api/orders/$finalId/status',
         body: {'status': backendStatus},
         requiresAuth: true,
       );
     } catch (_) {}
 
-    // Refresh from backend
+    // Refresh from backend database
     await loadOrdersQueue();
   }
 
