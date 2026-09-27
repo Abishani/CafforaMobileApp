@@ -235,17 +235,23 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Cafe\nManager',
-              style: TextStyle(
-                color: palette.ink,
-                fontSize: 30,
-                height: 34 / 30,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.8,
+            Expanded(
+              child: Text(
+                'Cafe\nManager',
+                style: TextStyle(
+                  color: palette.ink,
+                  fontSize: 28,
+                  height: 32 / 28,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.8,
+                ),
               ),
             ),
-            Row(
+            const SizedBox(width: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              alignment: WrapAlignment.end,
               children: [
                 Container(
                   padding:
@@ -284,7 +290,6 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
                 InkWell(
                   onTap: widget.onSwitchToCustomerView,
                   borderRadius: BorderRadius.circular(99),
@@ -343,15 +348,17 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
             children: [
               Icon(Icons.bolt, color: palette.accentDark, size: 18),
               const SizedBox(width: 8),
-              Text(
-                '$activeOrdersCount Active Orders • Avg 4m prep',
-                style: TextStyle(
-                  color: palette.ink,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  '$activeOrdersCount Active Orders • Avg 4m prep',
+                  style: TextStyle(
+                    color: palette.ink,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
               PopupMenuButton<String>(
                 tooltip: 'Filter orders',
                 initialValue: _selectedFilter,
@@ -390,27 +397,33 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: palette.accentDark,
-                            shape: BoxShape.circle,
+                    Flexible(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: palette.accentDark,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Live Orders',
-                          style: TextStyle(
-                            color: palette.body,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Live Orders',
+                              style: TextStyle(
+                                color: palette.body,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 4),
                     Text(
                       '$activeOrdersCount',
                       style: TextStyle(
@@ -438,27 +451,33 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: palette.accentDark,
-                            shape: BoxShape.circle,
+                    Flexible(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: palette.accentDark,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Menu Items',
-                          style: TextStyle(
-                            color: palette.body,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Menu Items',
+                              style: TextStyle(
+                                color: palette.body,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 4),
                     Text(
                       '${MenuData.products.length}',
                       style: TextStyle(
@@ -687,11 +706,14 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
                     ),
                   ),
                   if (item.customization != null)
-                    Text(
-                      item.customization!,
-                      style: TextStyle(
-                        color: palette.muted,
-                        fontSize: 12,
+                    Flexible(
+                      child: Text(
+                        item.customization!,
+                        style: TextStyle(
+                          color: palette.muted,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                 ],
@@ -705,48 +727,54 @@ class _AdminManageOrdersViewState extends State<AdminManageOrdersView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Status with popup dropdown
-              PopupMenuButton<String>(
-                tooltip: 'Change status',
-                onSelected: (val) => _updateStatus(order, val),
-                itemBuilder: (_) => const [
-                  PopupMenuItem(
-                    value: 'Pending',
-                    child: Text('🕒 Pending (Not Started)'),
-                  ),
-                  PopupMenuItem(
-                    value: 'Preparing',
-                    child: Text('🔥 Preparing (In Progress)'),
-                  ),
-                  PopupMenuItem(
-                    value: 'Ready',
-                    child: Text('🔔 Ready for Pickup'),
-                  ),
-                  PopupMenuItem(
-                    value: 'Completed',
-                    child: Text('✓ Completed'),
-                  ),
-                ],
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildStatusIcon(order.status),
-                    const SizedBox(width: 6),
-                    Text(
-                      _formatStatusText(order),
-                      style: TextStyle(
-                        color: _statusColor(order.status, palette),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+              Flexible(
+                child: PopupMenuButton<String>(
+                  tooltip: 'Change status',
+                  onSelected: (val) => _updateStatus(order, val),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'Pending',
+                      child: Text('🕒 Pending (Not Started)'),
                     ),
-                    Icon(
-                      Icons.arrow_drop_down,
-                      size: 16,
-                      color: palette.muted,
+                    PopupMenuItem(
+                      value: 'Preparing',
+                      child: Text('🔥 Preparing (In Progress)'),
+                    ),
+                    PopupMenuItem(
+                      value: 'Ready',
+                      child: Text('🔔 Ready for Pickup'),
+                    ),
+                    PopupMenuItem(
+                      value: 'Completed',
+                      child: Text('✓ Completed'),
                     ),
                   ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildStatusIcon(order.status),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          _formatStatusText(order),
+                          style: TextStyle(
+                            color: _statusColor(order.status, palette),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        size: 16,
+                        color: palette.muted,
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
 
               // Action button
               _buildActionButton(order, palette),
