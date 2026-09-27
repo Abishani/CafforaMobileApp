@@ -110,8 +110,6 @@ class _HomePageState extends State<HomePage> {
     if (role == UserRole.guest) {
       if (index == 1) {
         Navigator.of(context).pushReplacementNamed('/menu');
-      } else if (index == 2) {
-        Navigator.of(context).pushNamed('/appearance');
       }
       return;
     }

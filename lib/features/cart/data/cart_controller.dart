@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../core/constants/app_assets.dart';
 import '../../../core/models/order_models.dart';
 import '../../../core/models/table_models.dart';
 import '../../../core/network/api_client.dart';
@@ -62,25 +61,9 @@ class CartController extends ChangeNotifier {
   double get total => subtotal > 0 ? (subtotal - discount + tax + tipAmount) : 0.0;
 
   void _initializeDefaultItems() {
+    // Cart starts empty – items are added by the user or restored from
+    // pending backend orders after sign-in.
     _items.clear();
-    _items.addAll([
-      CartItem(
-        productId: 1,
-        name: 'Artisan Flat White',
-        description: 'Oat milk, Extra single shot',
-        price: 6.35,
-        image: AppAssets.cartArtisanFlatWhite,
-        quantity: 1,
-      ),
-      CartItem(
-        productId: 3,
-        name: 'Wild Berry Brioche Toast',
-        description: 'Warm, Mascarpone on side',
-        price: 7.50,
-        image: AppAssets.cartWildBerryToast,
-        quantity: 1,
-      ),
-    ]);
   }
 
   void addItem(MenuProduct product, {String? note}) {

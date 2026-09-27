@@ -342,7 +342,11 @@ class HomeSection extends StatelessWidget {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-            final cardWidth = (constraints.maxWidth - AppSpacing.grid) / 2;
+            // Guard against negative widths during warmup frames (before
+            // viewport metrics arrive). maxWidth may briefly be 0 or tiny.
+            final available = constraints.maxWidth;
+            if (available <= 0) return const SizedBox.shrink();
+            final cardWidth = ((available - AppSpacing.grid) / 2).clamp(0.0, available);
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -527,7 +531,6 @@ class HomeBottomNavigation extends StatelessWidget {
       UserRole.guest => const [
         (Icons.coffee_outlined, 'Home'),
         (Icons.menu_book_outlined, 'Menu'),
-        (Icons.palette_outlined, 'Appearance'),
       ],
       UserRole.admin => const [
         (Icons.coffee_outlined, 'Home'),

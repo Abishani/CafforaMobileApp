@@ -8,13 +8,23 @@ import 'core/auth/auth_scope.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await ApiConfig.init();
-  final auth = await AuthController.create();
+
+  // Start with a guest auth controller so runApp is called immediately
+  // (avoids blocking the splash screen on slow network timeouts).
+  final auth = AuthController.guest();
   final themeController = ThemeController();
+
   runApp(CafforaApp(
     authController: auth,
     themeController: themeController,
   ));
+
+  // Initialize network config and restore session in the background AFTER
+  // the first frame is rendered.
+  Future.microtask(() async {
+    await ApiConfig.init();
+    await auth.restoreSession();
+  });
 }
 
 class CafforaApp extends StatefulWidget {

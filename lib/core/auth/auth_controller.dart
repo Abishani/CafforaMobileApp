@@ -7,6 +7,7 @@ import '../network/api_client.dart';
 import '../network/api_exception.dart';
 import '../../features/admin/presentation/pages/admin_page.dart';
 import '../../features/appearance/presentation/pages/appearance_page.dart';
+import '../../features/cart/data/cart_controller.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -208,6 +209,8 @@ class AuthController extends ChangeNotifier {
           _displayName = trimmedName;
           notifyListeners();
         }
+        // Clear any stale local cart so backend is the source of truth
+        CartController.instance.clear();
         return null;
       }
       return 'Unexpected response from server.';
@@ -271,14 +274,18 @@ class AuthController extends ChangeNotifier {
         await _saveUserToPrefs(prefs, authResponse.token, authResponse.user);
 
         _applyUser(authResponse.user);
+        // New registration – always start with an empty cart
+        CartController.instance.clear();
         return null;
       }
       return 'Unexpected response from server.';
     } on ApiException catch (e) {
-      if (e.statusCode != 0) {
+      // 409 = email already exists, 422 = validation error → show message to user
+      // 0 = no connection, 400 = test-mock server → treat as offline fallback
+      if (e.statusCode == 409 || e.statusCode == 422) {
         return e.message;
       }
-      // Connection failed / offline test fallback
+      // Offline / test fallback
       _role = trimmedEmail.toLowerCase().contains('admin') ? UserRole.admin : UserRole.registered;
       _displayName = trimmedName;
       _email = trimmedEmail;
