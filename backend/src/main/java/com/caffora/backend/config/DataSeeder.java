@@ -81,27 +81,31 @@ public class DataSeeder implements CommandLineRunner {
         return categories;
     }
 
+    /**
+     * Only runs on an empty products table, so it never overwrites or duplicates existing menu data.
+     * Image paths are served by the web app from web/public (e.g. web/public/images/Beverages/...).
+     */
     private void seedProducts(Map<String, Category> categories) {
         if (productRepository.count() > 0) {
             return;
         }
         productRepository.saveAll(java.util.List.of(
                 product("Craft Flat White", "Double shot of single-origin espresso with silky textured milk.",
-                        "4.50", categories.get("Beverages"), 280),
+                        "4.50", categories.get("Beverages"), 280, "/images/Beverages/Craft-Flat-White.jpg"),
                 product("Cinnamon Swirl Bun", "Freshly baked sourdough bun with Ceylon cinnamon and brown sugar glaze.",
-                        "3.75", categories.get("Snacks"), 280),
+                        "3.75", categories.get("Snacks"), 280, "/images/Snacks/Cinnamon-Swirl-Bun.png"),
                 product("Avocado Sourdough Toast", "Crushed Hass avocado, cherry tomatoes, and feta on organic levain.",
-                        "11.50", categories.get("Meals"), 280),
+                        "11.50", categories.get("Meals"), 280, "/images/Meals/Avocado-Sourdough-Toast.png"),
                 product("Pistachio Raspberry Tart", "Sweet pastry shell filled with rich pistachio cream and fresh raspberries.",
-                        "6.50", categories.get("Desserts"), 280),
+                        "6.50", categories.get("Desserts"), 280, "/images/Desserts/Pistachio-Raspberry-Tart.png"),
                 product("Sourdough Chocolate Cookie", "Crispy edges with gooey, rich dark chocolate pools and flaked sea salt.",
-                        "3.25", categories.get("Desserts"), 340),
+                        "3.25", categories.get("Desserts"), 340, "/images/Desserts/Sourdough-Chocolate-Cookie.png"),
                 product("Iced Honey Oat Latte", "Organic oat milk combined with raw local honey and blonde roast cold brew.",
-                        "5.25", categories.get("Beverages"), 340),
+                        "5.25", categories.get("Beverages"), 340, "/images/Beverages/Iced-Honey-Oat-Latte.png"),
                 product("Smoked Turkey Ciabatta", "Hand-carved turkey breast, heirloom tomatoes, pesto, and melted provolone.",
-                        "12.00", categories.get("Meals"), 340),
+                        "12.00", categories.get("Meals"), 340, "/images/Meals/Smoked-Turkey-Ciabatta.png"),
                 product("Matcha Jasmine Crepe", "Delicate matcha crepe layers with airy jasmine-infused pastry cream.",
-                        "7.50", categories.get("Snacks"), 340)
+                        "7.50", categories.get("Snacks"), 340, "/images/Snacks/Matcha-Jasmine-Crepe.png")
         ));
         log.info("Seeded starter menu with 8 products across {} categories", categories.size());
     }
@@ -118,13 +122,14 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Seeded 3 dine-in tables with QR codes");
     }
 
-    private Product product(String name, String desc, String price, Category category, int calories) {
+    private Product product(String name, String desc, String price, Category category, int calories, String imageUrl) {
         return Product.builder()
                 .name(name)
                 .description(desc)
                 .price(new BigDecimal(price))
                 .category(category)
                 .calories(calories)
+                .imageUrl(imageUrl)
                 .status(ProductStatus.AVAILABLE)
                 .build();
     }
