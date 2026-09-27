@@ -76,14 +76,35 @@ export async function apiRequest(path, { method = 'GET', body, token, query } = 
   return data
 }
 
-/** Formats an ApiError (or any error) into user-facing copy: message + one field error per line. */
+const toText = (value) => {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  if (typeof value === 'object') return toText(value.message ?? value.defaultMessage ?? '')
+  return String(value)
+}
+
+/**
+ * Normalizes an ApiError's field errors into { fieldName: message }.
+ * The backend sends a list of { field, message }; a plain { field: message } map is also accepted.
+ */
+export function getFieldErrors(err) {
+  const raw = err?.fieldErrors
+  const result = {}
+  if (!raw || typeof raw !== 'object') return result
+  const entries = Array.isArray(raw)
+    ? raw.map((fe) => [fe?.field, fe])
+    : Object.entries(raw)
+  entries.forEach(([field, value]) => {
+    const message = toText(value)
+    if (field && message && !result[field]) result[field] = message
+  })
+  return result
+}
+
+/** Formats an ApiError (or any error) into user-facing copy: the field messages if any, else the main message. */
 export function formatApiError(err) {
   if (!err) return 'Something went wrong.'
-  const lines = [err.message || 'Something went wrong.']
-  if (err.fieldErrors && typeof err.fieldErrors === 'object') {
-    Object.entries(err.fieldErrors).forEach(([field, msg]) => {
-      lines.push(`${field}: ${msg}`)
-    })
-  }
-  return lines.join('\n')
+  const fieldMessages = Object.values(getFieldErrors(err))
+  if (fieldMessages.length) return fieldMessages.join('\n')
+  return toText(err.message) || 'Something went wrong.'
 }

@@ -12,6 +12,7 @@ erDiagram
     ORDERS ||--|{ ORDER_ITEMS : contains
     PRODUCTS ||--o{ ORDER_ITEMS : "ordered as"
     ORDERS ||--|| PAYMENTS : "paid by"
+    USERS ||--o{ REVIEWS : writes
 
     USERS {
         bigint id PK
@@ -84,9 +85,25 @@ erDiagram
         datetime paid_at
         datetime created_at
     }
+
+    REVIEWS {
+        bigint id PK
+        bigint user_id FK
+        int rating "1-5"
+        varchar comment_text
+        datetime created_at
+        datetime updated_at
+    }
 ```
 
 ## Relationships and rationale
+
+### `users` 1 — N `reviews`
+Every review is written by exactly one authenticated user (`reviews.user_id`
+is `NOT NULL`, `FK → users.id`). The author comes from the JWT on
+`POST /api/reviews`, never from the request body, and guests get `401`.
+Reading reviews (`GET /api/reviews`) is public and exposes only the author's
+display name. A user may write any number of reviews.
 
 ### `users` 1 — N `orders`
 Every order is placed by exactly one authenticated user (`orders.user_id`

@@ -4,6 +4,41 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { auth, icons } from '../assets/images'
 import { useApp } from '../context/AppContext'
+import { formatApiError, getFieldErrors } from '../api/client'
+
+// local@domain.tld — no spaces, one @, and a domain made of non-empty dot-separated labels.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/
+
+// Mirrors the backend RegisterRequest / LoginRequest constraints.
+const NAME_MAX = 120
+const PASSWORD_MIN = 8
+const PASSWORD_MAX = 100
+
+function validate({ tab, name, email, password }) {
+  const errors = {}
+  if (tab === 'register') {
+    if (!name.trim()) errors.name = 'Full name is required.'
+    else if (name.trim().length > NAME_MAX) errors.name = `Full name must be at most ${NAME_MAX} characters.`
+  }
+  if (!email.trim()) errors.email = 'Email address is required.'
+  else if (!EMAIL_PATTERN.test(email.trim())) errors.email = 'Please enter a valid email address.'
+  if (!password) errors.password = 'Password is required.'
+  else if (tab === 'register' && (password.length < PASSWORD_MIN || password.length > PASSWORD_MAX)) {
+    errors.password = `Password must be between ${PASSWORD_MIN} and ${PASSWORD_MAX} characters.`
+  }
+  return errors
+}
+
+const FIELD_ORDER = ['name', 'email', 'password']
+
+function FieldError({ id, message }) {
+  if (!message) return null
+  return (
+    <p id={id} className="font-sans text-[13px] text-[#b3261e]">
+      {message}
+    </p>
+  )
+}
 
 export default function AuthPage() {
   const [tab, setTab] = useState('signin') // 'signin' | 'register'
@@ -11,16 +46,33 @@ export default function AuthPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [formError, setFormError] = useState(null)
-  const { login, register, authLoading, authError, setAuthError } = useApp()
+  const { login, register, authLoading, setAuthError } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || '/cart'
 
   const switchTab = (next) => {
     setTab(next)
+    setFieldErrors({})
     setFormError(null)
     setAuthError(null)
+  }
+
+  const clearFieldError = (field) => {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+    setFormError(null)
+  }
+
+  const focusFirstError = (errors) => {
+    const first = FIELD_ORDER.find((f) => errors[f])
+    if (first) document.getElementById(first)?.focus()
   }
 
   const handleSubmit = async (e) => {
@@ -28,12 +80,10 @@ export default function AuthPage() {
     setFormError(null)
     setAuthError(null)
 
-    if (tab === 'register' && !name.trim()) {
-      setFormError('Please enter your full name.')
-      return
-    }
-    if (!email.trim() || !password) {
-      setFormError('Please enter your email and password.')
+    const errors = validate({ tab, name, email, password })
+    setFieldErrors(errors)
+    if (Object.keys(errors).length) {
+      focusFirstError(errors)
       return
     }
 
@@ -44,10 +94,30 @@ export default function AuthPage() {
         await login(email.trim(), password)
       }
       navigate(from, { replace: true })
-    } catch {
-      // authError from context already carries the backend's message
+    } catch (err) {
+      if (tab === 'signin' && err?.status === 401) {
+        // Same message whether the email is unknown or the password is wrong (no account enumeration).
+        setFormError('Incorrect email or password.')
+        return
+      }
+      const serverFieldErrors = getFieldErrors(err)
+      const known = Object.fromEntries(Object.entries(serverFieldErrors).filter(([f]) => FIELD_ORDER.includes(f)))
+      if (Object.keys(known).length) {
+        setFieldErrors(known)
+        focusFirstError(known)
+        const unknown = Object.entries(serverFieldErrors).filter(([f]) => !FIELD_ORDER.includes(f))
+        if (unknown.length) setFormError(unknown.map(([, msg]) => msg).join('\n'))
+      } else {
+        setFormError(formatApiError(err))
+      }
     }
   }
+
+  const inputBorder = (field) => (fieldErrors[field] ? 'border-[#b3261e]' : 'border-latte')
+  const a11yProps = (field) => ({
+    'aria-invalid': fieldErrors[field] ? true : undefined,
+    'aria-describedby': fieldErrors[field] ? `${field}-error` : undefined,
+  })
 
   return (
     <div className="bg-cream flex flex-col items-start w-full min-h-screen">
@@ -122,7 +192,7 @@ export default function AuthPage() {
             </button>
           </div>
 
-          <form className="flex flex-col gap-5 items-start w-full" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-5 items-start w-full" onSubmit={handleSubmit} noValidate>
             {tab === 'register' && (
               <div className="flex flex-col gap-2 items-start w-full">
                 <label className="font-sans font-semibold text-[#3d2b1f] text-[13px]" htmlFor="name">
@@ -132,10 +202,16 @@ export default function AuthPage() {
                   id="name"
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    clearFieldError('name')
+                  }}
                   placeholder="e.g. Elena Woods"
-                  className="border border-latte border-solid p-3.5 rounded-lg w-full font-sans text-sm text-espresso placeholder:text-mocha focus:outline-none focus:border-rust"
+                  autoComplete="name"
+                  {...a11yProps('name')}
+                  className={`border ${inputBorder('name')} border-solid p-3.5 rounded-lg w-full font-sans text-sm text-espresso placeholder:text-mocha focus:outline-none focus:border-rust`}
                 />
+                <FieldError id="name-error" message={fieldErrors.name} />
               </div>
             )}
 
@@ -147,11 +223,16 @@ export default function AuthPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  clearFieldError('email')
+                }}
                 placeholder="e.g. elena.woods@gmail.com"
                 autoComplete="email"
-                className="border border-latte border-solid p-3.5 rounded-lg w-full font-sans text-sm text-espresso placeholder:text-mocha focus:outline-none focus:border-rust"
+                {...a11yProps('email')}
+                className={`border ${inputBorder('email')} border-solid p-3.5 rounded-lg w-full font-sans text-sm text-espresso placeholder:text-mocha focus:outline-none focus:border-rust`}
               />
+              <FieldError id="email-error" message={fieldErrors.email} />
             </div>
 
             <div className="flex flex-col gap-2 items-start w-full">
@@ -165,25 +246,30 @@ export default function AuthPage() {
                   </button>
                 )}
               </div>
-              <div className="border border-latte border-solid flex items-center justify-between p-3.5 rounded-lg w-full">
+              <div className={`border ${inputBorder('password')} border-solid flex items-center justify-between p-3.5 rounded-lg w-full`}>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    clearFieldError('password')
+                  }}
                   placeholder="••••••••••••"
                   autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
+                  {...a11yProps('password')}
                   className="flex-1 min-w-0 font-sans text-sm text-espresso placeholder:text-mocha focus:outline-none"
                 />
                 <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label="Toggle password visibility">
                   <img alt="" className="size-4" src={icons.eye} />
                 </button>
               </div>
+              <FieldError id="password-error" message={fieldErrors.password} />
             </div>
 
-            {(formError || authError) && (
+            {formError && (
               <p className="font-sans text-sm text-[#b3261e] whitespace-pre-line" role="alert">
-                {formError || authError}
+                {formError}
               </p>
             )}
 

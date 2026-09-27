@@ -175,6 +175,28 @@ CREATE TABLE payments (
     CONSTRAINT chk_payments_amount_nonneg CHECK (amount >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ----------------------------------------------------------------------------
+-- reviews  (public customer reviews; author is always an authenticated user)
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS reviews;
+CREATE TABLE reviews (
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED     NOT NULL,
+    rating          INT                 NOT NULL,
+    comment_text    VARCHAR(500)        NOT NULL,
+    created_at      DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                             ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_reviews_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT chk_reviews_rating CHECK (rating BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Backs GET /api/reviews ordering: rating DESC, created_at DESC.
+CREATE INDEX idx_reviews_rating_created ON reviews (rating, created_at);
+CREATE INDEX idx_reviews_user_id        ON reviews (user_id);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================================

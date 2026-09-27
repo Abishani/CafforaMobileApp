@@ -26,18 +26,15 @@ npm run build    # production build to dist/
 - Guest users are prompted to sign in before checkout; guest checkout banner appears on the menu page.
 - Admin menu table: toggle Available/Sold Out, delete items, add a placeholder item. Kitchen queue ticket status cycles Pending → Preparing → Ready → Completed on click.
 
-## Important: image assets are temporary
+## Image and icon assets
 
-The images and icons currently reference Figma's temporary export URLs
-(`https://www.figma.com/api/mcp/asset/...`), which **expire after about 7 days**.
-They're centralized in `src/assets/images.js` and `src/data/menuData.js` (menu item photos).
+All images and icons are served locally from `public/` and referenced in `src/assets/images.js`:
 
-Before shipping this to production:
-1. Download each image (open the URL, save the file).
-2. Put them in `src/assets/` (or wherever you keep static assets).
-3. Update the URL strings in `src/assets/images.js` / `src/data/menuData.js` to point at your local/CDN copies.
+- `public/images/<Category>/` holds product photos (Beverages, Desserts, Meals, Snacks).
+- `public/images/site/` holds the home hero, the auth background and the avatars.
+- `public/icons/` holds the SVG icons. They're used as `<img src>`, so each file has its stroke color built in.
 
-This project's sandbox couldn't reach `figma.com` to pre-download them for you (network policy), so this step is left for you to do locally — it's a find-and-replace, not a rebuild.
+The database stores only the public path in `products.image_url` (for example `/images/Beverages/Craft-Flat-White.jpg`), never the image itself.
 
 ## Design tokens
 

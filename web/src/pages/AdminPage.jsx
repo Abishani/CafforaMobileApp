@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from '../components/Footer'
 import { icons, adminIcons, adminAvatar } from '../assets/images'
@@ -20,7 +20,14 @@ const sidebarItems = [
   { key: 'settings', label: 'Store Settings', icon: 'settings' },
 ]
 
-const STATUS_CYCLE = ['PENDING', 'PREPARING', 'READY', 'COMPLETED']
+// Mirrors the backend OrderStatus enum; the backend accepts any of these without transition rules.
+const ORDER_STATUSES = [
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'PREPARING', label: 'Preparing' },
+  { value: 'READY', label: 'Ready' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+]
 const STATUS_DOT = {
   PENDING: 'bg-[#b58900]',
   PREPARING: 'bg-rust',
@@ -77,6 +84,140 @@ function AdminHeader({ section, setSection }) {
   )
 }
 
+function OrderStatusMenu({ orderId, status, disabled, onSelect }) {
+  const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState(null)
+  const triggerRef = useRef(null)
+  const menuRef = useRef(null)
+  const itemRefs = useRef([])
+  const menuId = `order-status-menu-${orderId}`
+  const current = ORDER_STATUSES.find((s) => s.value === status)
+
+  const close = (restoreFocus) => {
+    setOpen(false)
+    if (restoreFocus) triggerRef.current?.focus()
+  }
+
+  const openMenu = () => {
+    // Fixed positioning so the menu isn't clipped by the Card's overflow container.
+    const rect = triggerRef.current.getBoundingClientRect()
+    setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    setOpen(true)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    const idx = Math.max(0, ORDER_STATUSES.findIndex((s) => s.value === status))
+    itemRefs.current[idx]?.focus()
+
+    const onPointerDown = (e) => {
+      if (!menuRef.current?.contains(e.target) && !triggerRef.current?.contains(e.target)) close(false)
+    }
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        close(true)
+      }
+    }
+    const onViewportChange = () => close(false)
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('touchstart', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    window.addEventListener('scroll', onViewportChange, true)
+    window.addEventListener('resize', onViewportChange)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('touchstart', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('scroll', onViewportChange, true)
+      window.removeEventListener('resize', onViewportChange)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  const onMenuKeyDown = (e) => {
+    const items = itemRefs.current.filter(Boolean)
+    const idx = items.indexOf(document.activeElement)
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      items[(idx + 1) % items.length]?.focus()
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      items[(idx - 1 + items.length) % items.length]?.focus()
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      items[0]?.focus()
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      items[items.length - 1]?.focus()
+    } else if (e.key === 'Tab') {
+      close(false)
+    }
+  }
+
+  const choose = (value) => {
+    close(true)
+    if (value !== status) onSelect(value)
+  }
+
+  return (
+    <div className="relative shrink-0">
+      <button
+        ref={triggerRef}
+        type="button"
+        disabled={disabled}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
+        aria-label={`Order status: ${current?.label ?? status}. Change status`}
+        onClick={() => (open ? close(false) : openMenu())}
+        onKeyDown={(e) => {
+          if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+            e.preventDefault()
+            openMenu()
+          }
+        }}
+        className="bg-white border border-latte border-solid flex gap-3 items-center px-4 py-2 rounded-lg shrink-0 disabled:opacity-60 disabled:cursor-wait"
+      >
+        <span className={`${STATUS_DOT[status] ?? 'bg-latte'} rounded-full size-2`} />
+        <span className="font-sans font-bold text-espresso text-[13px] whitespace-nowrap capitalize">
+          {current?.label ?? (status || '').toLowerCase()}
+        </span>
+        <img alt="" className="size-2.5" src={adminIcons.chevronDown} />
+      </button>
+      {open && pos && (
+        <div
+          ref={menuRef}
+          id={menuId}
+          role="menu"
+          aria-label="Change order status"
+          onKeyDown={onMenuKeyDown}
+          style={{ position: 'fixed', top: pos.top, right: pos.right }}
+          className="bg-white border border-latte border-solid flex flex-col min-w-[180px] p-1 rounded-lg shadow-lg z-50"
+        >
+          {ORDER_STATUSES.map((s, i) => (
+            <button
+              key={s.value}
+              ref={(el) => (itemRefs.current[i] = el)}
+              type="button"
+              role="menuitemradio"
+              aria-checked={s.value === status}
+              tabIndex={-1}
+              onClick={() => choose(s.value)}
+              className={`flex gap-3 items-center px-3 py-2 rounded-md w-full text-left font-sans text-espresso text-[13px] whitespace-nowrap hover:bg-cream focus:bg-cream focus:outline-none ${
+                s.value === status ? 'font-bold' : 'font-medium'
+              }`}
+            >
+              <span className={`${STATUS_DOT[s.value]} rounded-full size-2 shrink-0`} />
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Card({ title, subtitle, action, children }) {
   return (
     <div className="bg-white border border-latte border-solid flex flex-col gap-5 items-start p-6 rounded-2xl shrink-0 w-full overflow-x-auto">
@@ -107,6 +248,7 @@ export default function AdminPage() {
   const [queue, setQueue] = useState([])
   const [queueLoading, setQueueLoading] = useState(true)
   const [queueErr, setQueueErr] = useState(null)
+  const [updatingOrderId, setUpdatingOrderId] = useState(null)
 
   // Product form
   const [productForm, setProductForm] = useState(null) // null = closed
@@ -217,15 +359,17 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [salesRange])
 
-  const cycleStatus = async (order) => {
-    const nextIdx = (STATUS_CYCLE.indexOf(order.status) + 1) % STATUS_CYCLE.length
-    const nextStatus = STATUS_CYCLE[nextIdx]
+  const changeOrderStatus = async (order, nextStatus) => {
+    setUpdatingOrderId(order.id)
     try {
-      await ordersApi.updateOrderStatus(order.id, nextStatus, token)
+      const updated = await ordersApi.updateOrderStatus(order.id, nextStatus, token)
+      setQueue((prev) => prev.map((o) => (o.id === order.id ? { ...o, ...(updated ?? {}), status: nextStatus } : o)))
       loadQueue()
       loadDashboard()
     } catch (err) {
       setQueueErr(formatApiError(err))
+    } finally {
+      setUpdatingOrderId(null)
     }
   }
 
@@ -758,33 +902,31 @@ export default function AdminPage() {
                       .map((li) => `${li.quantity ?? li.qty}x ${li.productName ?? li.name ?? `#${li.productId}`}`)
                       .join(', ')
                     return (
-                      <div key={order.id} className="bg-cream border border-latte border-solid flex items-center justify-between p-4 rounded-xl shrink-0 w-full flex-wrap gap-4">
-                        <div className="flex flex-1 gap-5 items-center min-w-0 flex-wrap">
-                          <div className="flex flex-col gap-1 items-start w-24 shrink-0">
-                            <p className="font-display font-extrabold text-espresso text-base">#{order.orderNumber ?? order.id}</p>
-                            <p className="font-sans text-mocha text-[11px]">
-                              {order.pickupType === 'TABLE' ? `Table ${order.tableId ?? ''}` : 'Counter'}
-                            </p>
-                          </div>
-                          <div className="flex flex-1 flex-col gap-1 items-start min-w-0">
-                            <p className="font-sans text-mocha text-[13px] truncate">{itemsSummary || '—'}</p>
-                          </div>
+                      <div key={order.id} className="bg-cream border border-latte border-solid flex flex-wrap sm:flex-nowrap items-center gap-x-5 gap-y-3 p-4 rounded-xl shrink-0 w-full">
+                        {/* Left: order number + order type */}
+                        <div className="flex flex-col gap-1 items-start w-24 shrink-0">
+                          <p className="font-display font-extrabold text-espresso text-base">#{order.orderNumber ?? order.id}</p>
+                          <p className="font-sans text-mocha text-[11px]">
+                            {order.pickupType === 'TABLE' ? `Table ${order.tableId ?? ''}` : 'Counter'}
+                          </p>
                         </div>
-                        <div className="flex gap-8 items-center shrink-0">
+                        {/* Center: items — the only section allowed to shrink; drops to its own line on narrow screens */}
+                        <div className="order-last basis-full sm:order-none sm:basis-auto flex-1 min-w-0">
+                          <p className="font-sans text-mocha text-[13px] truncate" title={itemsSummary || undefined}>
+                            {itemsSummary || '—'}
+                          </p>
+                        </div>
+                        {/* Right: price + status, fixed width, never overlapped */}
+                        <div className="flex gap-4 sm:gap-8 items-center shrink-0 ml-auto">
                           <p className="font-display font-extrabold text-espresso text-base whitespace-nowrap">
                             ${Number(order.total ?? 0).toFixed(2)}
                           </p>
-                          <button
-                            type="button"
-                            onClick={() => cycleStatus(order)}
-                            className="bg-white border border-latte border-solid flex gap-3 items-center px-4 py-2 rounded-lg shrink-0"
-                          >
-                            <span className={`${STATUS_DOT[order.status] ?? 'bg-latte'} rounded-full size-2`} />
-                            <span className="font-sans font-bold text-espresso text-[13px] whitespace-nowrap capitalize">
-                              {(order.status || '').toLowerCase()}
-                            </span>
-                            <img alt="" className="size-2.5" src={adminIcons.chevronDown} />
-                          </button>
+                          <OrderStatusMenu
+                            orderId={order.id}
+                            status={order.status}
+                            disabled={updatingOrderId === order.id}
+                            onSelect={(next) => changeOrderStatus(order, next)}
+                          />
                         </div>
                       </div>
                     )

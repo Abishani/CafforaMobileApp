@@ -17,5 +17,5 @@ export function activeOrders(token) {
 }
 
 export function updateOrderStatus(id, status, token) {
-  return apiRequest(`/orders/${id}/status`, { method: 'PUT', body: { status }, token })
+  return apiRequest(`/orders/${id}/status`, { method: 'PATCH', body: { status }, token })
 }

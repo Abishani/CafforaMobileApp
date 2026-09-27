@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import ReviewsSection from '../components/ReviewsSection'
 import { home, icons } from '../assets/images'
 import { useApp } from '../context/AppContext'
 
@@ -153,6 +154,8 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      <ReviewsSection />
 
       <Footer />
     </div>
