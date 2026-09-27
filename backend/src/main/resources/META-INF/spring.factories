@@ -1,0 +1,5 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.caffora.backend.config.RequiredSecretsValidator
+
+org.springframework.boot.diagnostics.FailureAnalyzer=\
+com.caffora.backend.config.MissingRequiredSecretsFailureAnalyzer

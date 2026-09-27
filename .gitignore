@@ -24,10 +24,18 @@ build/
 android/local.properties
 android/key.properties
 
+# Signing keys and credentials (anywhere in the repo, not just mobile/android)
+*.jks
+*.keystore
+key.properties
+*.p12
+*.pem
+
 # IDE
 .idea/
-.vscode/*
-!.vscode/extensions.json
+*.iml
+**/.vscode/*
+!**/.vscode/extensions.json
 
 # OS
 .DS_Store

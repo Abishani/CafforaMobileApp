@@ -1,5 +1,6 @@
 package com.caffora.backend.dto.auth;
 
+import com.caffora.backend.dto.common.ValidationPatterns;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,7 +11,9 @@ public record RegisterRequest(
         String name,
 
         @NotBlank(message = "Email is required")
-        @Email(message = "Email must be a valid address")
+        // Stricter than plain @Email, which accepts dot-less domains like "helan@gmail".
+        // Login keeps plain @Email so existing accounts are never locked out.
+        @Email(regexp = ValidationPatterns.EMAIL, message = "Email must be a valid address")
         String email,
 
         @NotBlank(message = "Password is required")

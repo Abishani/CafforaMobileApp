@@ -54,6 +54,10 @@ export default function App() {
             </RequireAdmin>
           }
         />
+        {/* "My Orders" lives on the cart page's orders tab; /orders is a friendly alias. */}
+        <Route path="/orders" element={<Navigate to="/cart?tab=orders" replace />} />
+        {/* Unknown URLs previously rendered an empty page. */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppProvider>
   )

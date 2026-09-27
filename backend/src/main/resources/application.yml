@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:caffora}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:caffora}
-    password: ${DB_PASSWORD:caffora}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -22,13 +22,18 @@ spring:
     default-property-inclusion: non_null
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
+  # Spring's fallback /error response (errors outside controllers). The API's own messages come
+  # from GlobalExceptionHandler / SecurityConfig and are unaffected by these settings.
   error:
-    include-message: always
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
 
 caffora:
   jwt:
-    secret: ${JWT_SECRET:change-this-super-secret-key-before-deploying-to-prod-min-32-bytes}
+    secret: ${JWT_SECRET}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24h
     issuer: caffora-backend
   cors:
@@ -38,8 +43,18 @@ caffora:
     pickup-fee: 0.50
   admin:
     seed-email: ${ADMIN_SEED_EMAIL:admin@caffora.com}
-    seed-password: ${ADMIN_SEED_PASSWORD:Admin@12345}
+    seed-password: ${ADMIN_SEED_PASSWORD}
     seed-name: ${ADMIN_SEED_NAME:System Admin}
+
+# Only /actuator/health is exposed (used as the Railway health check); no details are shown.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 logging:
   level:

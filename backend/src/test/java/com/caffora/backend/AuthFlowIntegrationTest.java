@@ -61,6 +61,10 @@ class AuthFlowIntegrationTest {
 
         String token = objectMapper.readTree(registerBody).get("token").asText();
 
+        // /me without a token must be 401, not a 500 from a null principal
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized());
+
         mockMvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("test.customer@example.com"));
@@ -75,6 +79,21 @@ class AuthFlowIntegrationTest {
                         .contentType(APPLICATION_JSON)
                         .content("{\"name\":\"Test\",\"description\":\"desc\",\"price\":1.0,\"categoryId\":1}"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void registrationRejectsEmailWithoutDomainSuffix() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RegisterRequest("Helan", "helan@gmail", "SecurePass123"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("email"))
+                .andExpect(jsonPath("$.fieldErrors[0].message").value("Email must be a valid address"));
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RegisterRequest("Helan", "helan.suffix@gmail.com", "SecurePass123"))))
+                .andExpect(status().isCreated());
     }
 
     @Test

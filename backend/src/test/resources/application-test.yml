@@ -16,3 +16,6 @@ caffora:
     secret: Tz0N61gU3jhJMER3LMzsf3Suo+MCCLhb1KhHYioMEKk=
     expiration-ms: 3600000
     issuer: caffora-backend-test
+  admin:
+    # Test-only value for the in-memory H2 database; never used outside tests.
+    seed-password: test-only-admin-password

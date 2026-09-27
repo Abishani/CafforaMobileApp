@@ -2,6 +2,7 @@ package com.caffora.backend.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +27,9 @@ public class JwtService {
             if (keyBytes.length < 32) {
                 keyBytes = normalize(jwtProperties.secret());
             }
-        } catch (IllegalArgumentException notBase64) {
+        } catch (IllegalArgumentException | DecodingException notBase64) {
+            // jjwt signals invalid base64 (e.g. '-' or '_' from a base64url secret) with DecodingException,
+            // which is not an IllegalArgumentException; treat the secret as a raw string in either case.
             keyBytes = normalize(jwtProperties.secret());
         }
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);

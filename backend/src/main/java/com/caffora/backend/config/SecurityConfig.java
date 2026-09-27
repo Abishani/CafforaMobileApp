@@ -78,6 +78,9 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // /me needs a signed-in user; without this it fell under the public rule below
+                        // and returned 500 (null principal) instead of 401.
+                        .requestMatchers("/api/auth/me").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
@@ -107,7 +110,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(corsProperties.allowedOrigins());
+        // Patterns (not exact origins) so e.g. https://caffora-*.vercel.app covers Vercel preview deploys;
+        // exact origins like http://localhost:5173 still match as before.
+        List<String> origins = corsProperties.allowedOrigins();
+        // Unlike setAllowedOrigins, setAllowedOriginPatterns accepts "*" together with credentials,
+        // which would let every website make credentialed requests. Refuse to start instead.
+        if (origins == null || origins.isEmpty()
+                || origins.stream().map(String::trim).anyMatch(o -> o.equals("*") || o.endsWith("://*"))) {
+            throw new IllegalStateException("CORS_ALLOWED_ORIGINS must list specific origins or patterns "
+                    + "(e.g. https://caffora.vercel.app,https://caffora-*.vercel.app); a bare \"*\" is not allowed "
+                    + "because CORS credentials are enabled.");
+        }
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
