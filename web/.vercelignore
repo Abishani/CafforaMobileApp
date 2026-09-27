@@ -1,0 +1,5 @@
+# Vercel installs dependencies and builds remotely; never upload local outputs.
+node_modules
+dist
+.env
+.env.*
