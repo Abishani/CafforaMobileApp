@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+target/
+build/
+.gradle/
+
+# Local editor settings
+.idea/
+.vscode/
+
+# Logs and local environment files
+*.log
+.env
+.env.*
+!.env.example
