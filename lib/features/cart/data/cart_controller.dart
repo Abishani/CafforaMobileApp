@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../core/models/order_models.dart';
@@ -61,7 +62,7 @@ class CartController extends ChangeNotifier {
   double get total => subtotal > 0 ? (subtotal - discount + tax + tipAmount) : 0.0;
 
   void _initializeDefaultItems() {
-    // Cart starts empty – items are added by the user or restored from
+    // Cart starts empty - items are added by the user or restored from
     // pending backend orders after sign-in.
     _items.clear();
   }
@@ -182,6 +183,8 @@ class CartController extends ChangeNotifier {
       if (data is Map<String, dynamic>) {
         final response = OrderResponse.fromJson(data);
         clear();
+        // Submit payment separately: POST /api/payments
+        unawaited(_submitPayment(response.id, _paymentMethod));
         return response;
       }
       throw const ApiException(statusCode: 500, message: 'Invalid response from server');
@@ -218,5 +221,17 @@ class CartController extends ChangeNotifier {
       _isSubmitting = false;
       notifyListeners();
     }
+  }
+
+  /// Submits payment for a placed order via Spring Boot `POST /api/payments`.
+  /// Called fire-and-forget; failures are silent and non-fatal.
+  Future<void> _submitPayment(int orderId, String paymentMethod) async {
+    try {
+      await ApiClient.instance.post(
+        '/api/payments',
+        body: {'orderId': orderId, 'method': paymentMethod},
+        requiresAuth: true,
+      );
+    } catch (_) {}
   }
 }

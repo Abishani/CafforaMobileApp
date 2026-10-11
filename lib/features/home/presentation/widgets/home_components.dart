@@ -142,19 +142,27 @@ class HomeHeader extends StatelessWidget {
 }
 
 class HomeSearchBar extends StatelessWidget {
-  const HomeSearchBar({super.key});
+  const HomeSearchBar({
+    super.key,
+    required this.onChanged,
+    required this.onFilterTap,
+  });
+
+  final ValueChanged<String> onChanged;
+  final VoidCallback onFilterTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
     return TextField(
+      onChanged: onChanged,
       style: TextStyle(color: palette.ink, fontSize: 14),
       decoration: InputDecoration(
         hintText: 'Search coffee or bakery...',
         hintStyle: TextStyle(color: palette.muted, fontSize: 14),
         prefixIcon: Icon(Icons.search, size: 18, color: palette.body),
         suffixIcon: IconButton(
-          onPressed: () {},
+          onPressed: onFilterTap,
           icon: Icon(Icons.tune, size: 16, color: palette.body),
           tooltip: 'Filter menu',
         ),

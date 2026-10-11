@@ -27,13 +27,17 @@ class PlaceOrderRequest {
   final List<OrderLineRequest> items;
   final String pickupType;
   final int? tableId;
+
+  /// Retained for CartController reference only.
+  /// NOT sent to the backend in toJson() — payment is submitted
+  /// separately via POST /api/payments after the order is created.
   final String? paymentMethod;
 
   Map<String, dynamic> toJson() => {
         'items': items.map((e) => e.toJson()).toList(),
         'pickupType': pickupType,
         if (tableId != null) 'tableId': tableId,
-        if (paymentMethod != null) 'paymentMethod': paymentMethod,
+        // paymentMethod is excluded — submitted separately via POST /api/payments
       };
 }
 

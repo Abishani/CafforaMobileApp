@@ -19,6 +19,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedNavigationIndex = 0;
+  String _searchQuery = '';
+  String _selectedHomeCategory = 'All';
+
+  static const _homeCategories = ['All', 'Drinks', 'Bakery'];
 
   @override
   void initState() {
@@ -105,6 +109,56 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).pushReplacementNamed('/menu');
   }
 
+  Future<void> _showHomeFilters() async {
+    final selectedCategory = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Filter menu',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            for (final category in _homeCategories)
+              ListTile(
+                title: Text(category),
+                trailing: _selectedHomeCategory == category
+                    ? const Icon(Icons.check)
+                    : null,
+                onTap: () => Navigator.pop(context, category),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
+    if (selectedCategory != null && mounted) {
+      setState(() => _selectedHomeCategory = selectedCategory);
+    }
+  }
+
+  List<HomeProduct> _matchingProducts(
+    List<HomeProduct> products, {
+    required String categoryKeyword,
+  }) {
+    final query = _searchQuery.toLowerCase();
+    return products.where((product) {
+      return product.name.toLowerCase().contains(query) ||
+          product.description.toLowerCase().contains(query) ||
+          categoryKeyword
+              .split(' ')
+              .any((keyword) => keyword.startsWith(query));
+    }).toList();
+  }
+
   void _selectNavigation(int index) {
     final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
     if (role == UserRole.guest) {
@@ -149,6 +203,12 @@ class _HomePageState extends State<HomePage> {
     final role = AuthScope.maybeOf(context)?.role ?? UserRole.registered;
     final isGuest = role == UserRole.guest;
     final isRegisteredUser = role == UserRole.registered;
+    final drinks = _selectedHomeCategory == 'Bakery'
+      ? <HomeProduct>[]
+      : _matchingProducts(HomeData.drinks, categoryKeyword: 'coffee drinks espresso');
+    final bakery = _selectedHomeCategory == 'Drinks'
+      ? <HomeProduct>[]
+      : _matchingProducts(HomeData.bakery, categoryKeyword: 'bakery pastries');
 
     final mediaQuery = MediaQuery.of(context);
     final isTablet = mediaQuery.size.width > 600;
@@ -176,7 +236,10 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HomeSearchBar(),
+                  HomeSearchBar(
+                    onChanged: (query) => setState(() => _searchQuery = query.trim()),
+                    onFilterTap: _showHomeFilters,
+                  ),
                   const SizedBox(height: 16),
                   if (isRegisteredUser) ...[
                     Row(
@@ -310,19 +373,32 @@ class _HomePageState extends State<HomePage> {
                     PickupBanner(onOrder: _showOrderMessage),
                     const SizedBox(height: AppSpacing.section),
                   ],
-                  HomeSection(
-                    title: 'Popular Drinks',
-                    subtitle: 'Signature brews curated daily',
-                    products: HomeData.drinks,
-                    onAdd: _addToCart,
-                  ),
-                  const SizedBox(height: AppSpacing.section),
-                  HomeSection(
-                    title: 'Bakery & Treats',
-                    subtitle: 'Baked fresh in-house every morning',
-                    products: HomeData.bakery,
-                    onAdd: _addToCart,
-                  ),
+                  if (drinks.isNotEmpty)
+                    HomeSection(
+                        title: 'Popular Drinks',
+                        subtitle: 'Signature brews curated daily',
+                        products: drinks,
+                        onAdd: _addToCart,
+                      ),
+                  if (drinks.isNotEmpty && bakery.isNotEmpty)
+                    const SizedBox(height: AppSpacing.section),
+                  if (bakery.isNotEmpty)
+                    HomeSection(
+                        title: 'Bakery & Treats',
+                        subtitle: 'Baked fresh in-house every morning',
+                        products: bakery,
+                        onAdd: _addToCart,
+                      ),
+                  if (drinks.isEmpty && bakery.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Text(
+                          'No matching items found',
+                          style: TextStyle(color: palette.body),
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 36),
                 ],
               ),
